@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>kernel heap | Hexo</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="内核堆概述前述linux kernel对堆的内存管理器有两种，buddy system和slab allocater,前者以内存页为操作单位，后者则是以内存页为操作单位 linux kernel将内存分为页-区-节点三级结构，下面是一张十分经典的 Overview ，自顶向下是  节点（node，对应结构体 pgdata_list） 区（zone，对应结构体 zone，图上展示了三种类型的 zon">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kernel heap">
+<meta property="og:url" content="http://example.com/2025/10/31/kernel-heap/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="内核堆概述前述linux kernel对堆的内存管理器有两种，buddy system和slab allocater,前者以内存页为操作单位，后者则是以内存页为操作单位 linux kernel将内存分为页-区-节点三级结构，下面是一张十分经典的 Overview ，自顶向下是  节点（node，对应结构体 pgdata_list） 区（zone，对应结构体 zone，图上展示了三种类型的 zon">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-10-31T11:21:14.000Z">
+<meta property="article:modified_time" content="2025-10-31T11:43:48.665Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "kernel heap",
+  "url": "http://example.com/2025/10/31/kernel-heap/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2025-10-31T11:21:14.000Z",
+  "dateModified": "2025-10-31T11:43:48.665Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "John Doe",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/10/31/kernel-heap/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'kernel heap',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Hexo</span></a><a class="nav-page-title" href="/"><span class="site-name">kernel heap</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  Back to Home</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">kernel heap</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-31T11:21:14.000Z" title="Created 2025-10-31 19:21:14">2025-10-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-10-31T11:43:48.665Z" title="Updated 2025-10-31 19:43:48">2025-10-31</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="内核堆概述"><a href="#内核堆概述" class="headerlink" title="内核堆概述"></a>内核堆概述</h1><h2 id="前述"><a href="#前述" class="headerlink" title="前述"></a>前述</h2><p>linux kernel对堆的内存管理器有两种，buddy system和slab allocater,前者以内存页为操作单位，后者则是以内存页为操作单位</p>
+<p>linux kernel将内存分为页-区-节点三级结构，下面是一张十分经典的 <em>Overview</em> ，自顶向下是</p>
+<ul>
+<li>节点（node，对应结构体 pgdata_list）</li>
+<li>区（zone，对应结构体 zone，图上展示了三种类型的 zone）</li>
+<li>页（page，对应结构体 page）</li>
+</ul>
+<p><img src="https://ctf-wiki.org/pwn/linux/kernel-mode/exploitation/heap/figure/page-zone-node.png" alt="image.png"></p>
+<h3 id="页"><a href="#页" class="headerlink" title="页"></a>页</h3><p>  <img src="https://ctf-wiki.org/pwn/linux/kernel-mode/exploitation/heap/figure/page_struct.png" alt="image.png"> </p>
+<h3 id="区"><a href="#区" class="headerlink" title="区"></a>区</h3><p>将节点的不同用途的内存区域划分为不同的zone</p>
+<p> <img src="https://ctf-wiki.org/pwn/linux/kernel-mode/exploitation/heap/figure/zone_struct.png" alt="image.png"> </p>
+<h3 id="节点"><a href="#节点" class="headerlink" title="节点"></a>节点</h3><p> 一个MC对应一个节点；对于同一个内存控制器下的CPU而言其对应的节点称为本地内存<img src="https://ctf-wiki.org/pwn/linux/kernel-mode/exploitation/heap/figure/node_numa.png" alt="image.png"> </p>
+<h2 id="Buddy-system"><a href="#Buddy-system" class="headerlink" title="Buddy system"></a>Buddy system</h2><p>以内存页为粒度管理所有的物理内存，其存在于区这一级别</p>
+<p> 每个 zone 结构体中都有一个 free_area 结构体数组，用以存储 buddy system 按照 order 管理的页面: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct zone &#123;</span><br><span class="line">    //...</span><br><span class="line">    struct free_area    free_area[MAX_ORDER=11];</span><br><span class="line">    //...</span><br></pre></td></tr></table></figure>
+
+<p>order指的是连续的空闲页面的大小 2^order （参照区的那张图片）</p>
+<p>分配：</p>
+<ul>
+<li>首先会将请求的内存大小向 2 的幂次方张内存页大小对齐，之后从对应的下标取出连续内存页。</li>
+<li>若对应下标链表为空，则会从下一个 order 中取出内存页，一分为二，装载到当前下标对应链表中，之后再返还给上层调用，若下一个 order 也为空则会继续向更高的 order 进行该请求过程。</li>
+</ul>
+<p>释放：</p>
+<ul>
+<li>将对应的连续内存页释放到对应的链表上。</li>
+<li>检索是否有可以合并的内存页，若有，则进行合成，放入更高 order 的链表中。</li>
+</ul>
+<h2 id="Slub-allocator"><a href="#Slub-allocator" class="headerlink" title="Slub allocator"></a>Slub allocator</h2><p>只涉及目前通用版本slub</p>
+<p>  buddy system 请求<u>单张或多张连续内存页</u>（slub）后再分割成同等大小的对象用以更小粒度调用</p>
+<p>slub结构图：</p>
+<img src="https://ctf-wiki.org/pwn/linux/kernel-mode/exploitation/heap/figure/slub_allocator.png" alt="image.png" style="zoom:200%;" /> 
+
+<p> page 结构体与物理内存间存在线性对应关系，我们可以直接通过 object 地址找到其对应的 page 结构体。</p>
+<p> 一个 kmem_cache 主要由两个模块组成：  </p>
+<ol>
+<li>kemem_cache_cpu:一个percpu变量（每一个cpu都有一个独立的副本），用以表示当前正在使用的slub，因此当前 CPU 在从 kmem_cache_cpu 上取 object 时不需要加锁</li>
+<li>kmem_cache_node:存放两个slub链表；partial:有一定数量的空闲object；full:该slub上object都分配出去了</li>
+</ol>
+<p>分配：</p>
+<ul>
+<li>首先从 <code>kmem_cache_cpu</code> 上取对象，若有则直接返回。</li>
+<li>若 <code>kmem_cache_cpu</code> 上的 slub 已经无空闲对象了，对应 slub 会被从 <code>kmem_cache_cpu</code> 上取下，并尝试从 <strong>partial</strong> 链表上取一个 slub 挂载到 <code>kmem_cache_cpu</code> 上，然后再取出空闲对象返回。</li>
+<li>若 <code>kmem_cache_node</code> 的 partial 链表也空了，那就<strong>向 buddy system 请求分配新的内存页</strong>，划分为多个 object 之后再给到 <code>kmem_cache_cpu</code>，取空闲对象返回上层调用。</li>
+</ul>
+<p>释放：</p>
+<ul>
+<li>若被释放 object 属于 <code>kmem_cache_cpu</code> 的 slub，直接使用头插法插入当前 CPU slub 的 freelist。</li>
+<li>若被释放 object 属于 <code>kmem_cache_node</code> 的 partial 链表上的 slub，直接使用头插法插入对应 slub 的 freelist。</li>
+<li>若被释放 object 为 full slub，则其会成为对应 slub 的 freelist 头节点，<strong>且该 slub 会被放置到 partial 链表</strong>。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2025/10/31/kernel-heap/">http://example.com/2025/10/31/kernel-heap/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/10/26/kaslr%E7%88%86%E7%A0%B4/" title="kaslr爆破"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">kaslr爆破</div></div><div class="info-2"><div class="info-item-1">TCTF2021-FINAL难度因该是目前做的最简单的，主要是理解下kernel的kaslr爆破和远程exp如何编写。 题目分析发现开启了kpti 12/start.shcat /sys/devices/system/cpu/vulnerabilities/*    再看下start.sh,开启了SMAP,SMEP,KASLR,但是-drive file=flag.txt,format=raw \ 将flag.txt文件作为原始磁盘镜像，在&#x2F;dev&#x2F;sda中,cat &#x2F;dev&#x2F;sda，正常情况下flag.txt是全新先设为600（root可读），然后cat &#x2F;root&#x2F;flag.txt 12345678910111213stty intr ^]cd `dirname $0`timeout --foreground 300 qemu-system-x86_64 \    -m 256M \    -enable-kvm \    -cpu host,+smep,+smap \    -kernel bzImage \   ...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">John Doe</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E5%A0%86%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">内核堆概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text">前述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B5"><span class="toc-number">1.1.1.</span> <span class="toc-text">页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8C%BA"><span class="toc-number">1.1.2.</span> <span class="toc-text">区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8A%82%E7%82%B9"><span class="toc-number">1.1.3.</span> <span class="toc-text">节点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Buddy-system"><span class="toc-number">1.2.</span> <span class="toc-text">Buddy system</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Slub-allocator"><span class="toc-number">1.3.</span> <span class="toc-text">Slub allocator</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/31/kernel-heap/" title="kernel heap">kernel heap</a><time datetime="2025-10-31T11:21:14.000Z" title="Created 2025-10-31 19:21:14">2025-10-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/26/kaslr%E7%88%86%E7%A0%B4/" title="kaslr爆破">kaslr爆破</a><time datetime="2025-10-26T09:59:05.000Z" title="Created 2025-10-26 17:59:05">2025-10-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/25/kernel-stack/" title="kernel stack">kernel stack</a><time datetime="2025-10-25T10:15:20.000Z" title="Created 2025-10-25 18:15:20">2025-10-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/24/kernel%E6%8A%80%E5%B7%A7/" title="kernel技巧">kernel技巧</a><time datetime="2025-10-24T13:14:22.000Z" title="Created 2025-10-24 21:14:22">2025-10-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/23/kernel%E5%B8%B8%E8%A7%81%E4%BF%9D%E6%8A%A4/" title="kernel常见保护">kernel常见保护</a><time datetime="2025-10-23T11:18:40.000Z" title="Created 2025-10-23 19:18:40">2025-10-23</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By John Doe</span><span class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
