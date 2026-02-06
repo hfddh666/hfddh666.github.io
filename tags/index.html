@@ -144,59 +144,139 @@
   isHighlightShrink: false,
   isToc: false,
   pageType: 'page'
-}</script><style>
-  /* 页面整体留白+居中，更舒展 */
+}</script><link rel="preload" href="/image/top-bg.jpg" as="image"><style>
+  /* 🔥 页面背景：替换为你要的颜色（示例用浅灰蓝 #f5f7fa，可自行修改） */
+  body, html {
+    background: #f5f7fa !important; /* 你可替换成任意颜色值，比如 #f0f2f5、#eef1f5 等 */
+    color: #333 !important;
+  }
+  /* 页面容器：居中+留白 */
   #content-inner {
     max-width: 1200px;
     margin: 30px auto;
     padding: 0 20px;
   }
-  /* 文章卡片美化 */
+  /* 文章卡片：保留纯白色 */
   .recent-post-item {
-    background: #fff;
+    background: #ffffff !important; /* 纯白背景 */
     border-radius: 16px !important;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
     padding: 30px !important;
     margin-bottom: 25px !important;
-    border-left: 4px solid #4285f4;
-    transition: transform 0.2s;
+    /* 保留左侧暖棕渐变点缀（可选，不喜欢可删除） */
+    border-left: 4px solid;
+    border-image: linear-gradient(to bottom, #e67e22, #d35400) 1 !important;
+    transition: all 0.2s ease;
+    position: relative;
   }
+  /* 卡片hover效果 */
   .recent-post-item:hover {
     transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
   }
-  /* 其他样式... */
+  /* 卡片右上角小点缀（可选，不喜欢可删除） */
+  .recent-post-item::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(45deg, #e67e22, #d35400);
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+  /* 文章标题：深色调 */
+  .post-title {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 12px !important;
+    padding-right: 20px;
+  }
+  /* 文章摘要：中灰色 */
+  .post-excerpt {
+    color: #555 !important;
+    line-height: 1.7 !important;
+    font-size: 15px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  /* 发布时间：暖灰色+小图标 */
+  .post-meta {
+    color: #777 !important;
+    font-size: 14px !important;
+    margin-top: 10px !important;
+  }
+  .post-meta:before {
+    content: "📅 ";
+    color: #e67e22;
+  }
+  /* 侧边栏：保留纯白色 */
+  .card-widget {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 25px !important;
+    margin-bottom: 20px !important;
+  }
+  /* 侧边栏标题：深色调 */
+  .aside-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f5f7fa !important; /* 和背景色呼应 */
+    margin-bottom: 15px !important;
+    color: #2c3e50 !important;
+  }
+  /* 标签/分类：浅橙底点缀 */
+  .tag-cloud-list a, .category-list a {
+    background: #fef6e9 !important;
+    color: #e67e22 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    margin: 0 5px 8px 0 !important;
+    display: inline-block !important;
+  }
+  /* 代码块：保留纯白色 */
+  figure.highlight {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    border: none !important;
+  }
+  .highlight code {
+    color: #2c3e50 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  /* 行内代码：保留纯白色 */
+  p code, li code {
+    background: #ffffff !important; /* 纯白背景 */
+    color: #e67e22 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  }
+  /* 顶部图加载优化 */
+  #page-header {
+    background-image: url(/image/top-bg.jpg) !important;
+    background-size: cover !important;
+    background-position: center !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .top-img {
+    background: url(/image/top-bg.jpg) center/cover !important;
+  }
 </style>
-<meta name="generator" content="Hexo 7.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
-  const $loadingBox = document.getElementById('loading-box')
-  const $body = document.body
-  const preloader = {
-    endLoading: () => {
-      if ($loadingBox.classList.contains('loaded')) return
-      $body.style.overflow = ''
-      $loadingBox.classList.add('loaded')
-    },
-    initLoading: () => {
-      $body.style.overflow = 'hidden'
-      $loadingBox.classList.remove('loaded')
-    }
-  }
-
-  preloader.initLoading()
-
-  if (document.readyState === 'complete') {
-    preloader.endLoading()
-  } else {
-    window.addEventListener('load', preloader.endLoading)
-    document.addEventListener('DOMContentLoaded', preloader.endLoading)
-    // Add timeout protection: force end after 7 seconds
-    setTimeout(preloader.endLoading, 7000)
-  }
-
-  if (false) {
-    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
-    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
-  }
-})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header" style="background-image: url(/image/top-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">hfddh666's Blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">tags</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">hfddh666</div><div class="author-info-description">欢迎访问 hfddh666 的博客！</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" href="/about/"><i class="fab fa-github"></i><span>关于我</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/04/%E4%B8%89%E5%A4%A7%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/" title="三大架构比较">三大架构比较</a><time datetime="2026-02-04T15:07:13.000Z" title="发表于 2026-02-04 23:07:13">2026-02-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/06/reverse%E5%9F%BA%E7%A1%80/" title="reverse基础">reverse基础</a><time datetime="2025-12-06T15:52:52.000Z" title="发表于 2025-12-06 23:52:52">2025-12-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/22/heap-spray/" title="heap spray">heap spray</a><time datetime="2025-11-22T15:21:11.000Z" title="发表于 2025-11-22 23:21:11">2025-11-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/06/kernel-UAF/" title="kernel-UAF">kernel-UAF</a><time datetime="2025-11-06T10:26:24.000Z" title="发表于 2025-11-06 18:26:24">2025-11-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/31/kernel-heap/" title="kernel heap">kernel heap</a><time datetime="2025-10-31T11:21:14.000Z" title="发表于 2025-10-31 19:21:14">2025-10-31</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" style="font-size: 1.5em; color: #99a9bf">内核安全</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0/" style="font-size: 1.1em; color: #999">博客上传</a> <a href="/tags/Iot/" style="font-size: 1.3em; color: #99a1ac">Iot</a> <a href="/tags/%E9%80%86%E5%90%91/" style="font-size: 1.1em; color: #999">逆向</a></div></div><div class="card-widget card-archives">
+<meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header" style="background-image: url(/image/top-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">hfddh666's Blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">tags</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">hfddh666</div><div class="author-info-description">欢迎访问 hfddh666 的博客！</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" href="/about/"><i class="fab fa-github"></i><span>关于我</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/04/%E4%B8%89%E5%A4%A7%E6%9E%B6%E6%9E%84%E6%AF%94%E8%BE%83/" title="三大架构比较">三大架构比较</a><time datetime="2026-02-04T15:07:13.000Z" title="发表于 2026-02-04 23:07:13">2026-02-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/06/reverse%E5%9F%BA%E7%A1%80/" title="reverse基础">reverse基础</a><time datetime="2025-12-06T15:52:52.000Z" title="发表于 2025-12-06 23:52:52">2025-12-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/22/heap-spray/" title="heap spray">heap spray</a><time datetime="2025-11-22T15:21:11.000Z" title="发表于 2025-11-22 23:21:11">2025-11-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/06/kernel-UAF/" title="kernel-UAF">kernel-UAF</a><time datetime="2025-11-06T10:26:24.000Z" title="发表于 2025-11-06 18:26:24">2025-11-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/31/kernel-heap/" title="kernel heap">kernel heap</a><time datetime="2025-10-31T11:21:14.000Z" title="发表于 2025-10-31 19:21:14">2025-10-31</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0/" style="font-size: 1.1em; color: #999">博客上传</a> <a href="/tags/%E9%80%86%E5%90%91/" style="font-size: 1.1em; color: #999">逆向</a> <a href="/tags/Iot/" style="font-size: 1.3em; color: #99a1ac">Iot</a> <a href="/tags/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" style="font-size: 1.5em; color: #99a9bf">内核安全</a></div></div><div class="card-widget card-archives">
     <div class="item-headline">
       <i class="fas fa-archive"></i>
       <span>归档</span>
@@ -251,12 +331,12 @@
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">15</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-02-06T13:22:42.119Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By hfddh666</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">15</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-02-06T13:40:45.552Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By hfddh666</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script>
-  // 枫叶脚本（保留，数量减少到15，更轻盈）
+  // 枫叶脚本（数量减少，更轻盈）
   $(document).ready(function() {
     var leafCount = 0;
-    var maxLeaf = 15; // 减少枫叶数量，避免杂乱
+    var maxLeaf = 15;
     var fallSpeed = 1.8;
     
     function createLeaf() {
@@ -288,7 +368,7 @@
       });
     }
     for (var i = 0; i < 8; i++) createLeaf();
-    setInterval(createLeaf, 800); // 降低生成频率，更舒缓
+    setInterval(createLeaf, 800);
   });
 </script>
 <script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
