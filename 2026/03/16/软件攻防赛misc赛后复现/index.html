@@ -1,0 +1,373 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>软件攻防赛misc赛后复现 | hfddh666's Blog</title><meta name="author" content="hfddh666"><meta name="copyright" content="hfddh666"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1.图片恢复首先，先打开010editor看看，可以发现20h 4的位置有个PNG，IHDR，符合png的结构，所以把前面的东西去掉，改一下文件名后缀，就可以生成图片了   图片：   2.文件分析然后这里是用到一个zsteg的工具，个人认为他和binwalk区别是binwalk提取的是文件本身自带的完整的内容，而zsteg更像是将零碎的碎片拼接起来 1234567891011121314lion">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软件攻防赛misc赛后复现">
+<meta property="og:url" content="https://hfddh666.github.io/2026/03/16/%E8%BD%AF%E4%BB%B6%E6%94%BB%E9%98%B2%E8%B5%9Bmisc%E8%B5%9B%E5%90%8E%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="hfddh666&#39;s Blog">
+<meta property="og:description" content="1.图片恢复首先，先打开010editor看看，可以发现20h 4的位置有个PNG，IHDR，符合png的结构，所以把前面的东西去掉，改一下文件名后缀，就可以生成图片了   图片：   2.文件分析然后这里是用到一个zsteg的工具，个人认为他和binwalk区别是binwalk提取的是文件本身自带的完整的内容，而zsteg更像是将零碎的碎片拼接起来 1234567891011121314lion">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hfddh666.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-03-16T12:18:36.000Z">
+<meta property="article:modified_time" content="2026-03-16T13:35:45.903Z">
+<meta property="article:author" content="hfddh666">
+<meta property="article:tag" content="misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hfddh666.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "软件攻防赛misc赛后复现",
+  "url": "https://hfddh666.github.io/2026/03/16/%E8%BD%AF%E4%BB%B6%E6%94%BB%E9%98%B2%E8%B5%9Bmisc%E8%B5%9B%E5%90%8E%E5%A4%8D%E7%8E%B0/",
+  "image": "https://hfddh666.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-03-16T12:18:36.000Z",
+  "dateModified": "2026-03-16T13:35:45.903Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "hfddh666",
+      "url": "https://hfddh666.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://hfddh666.github.io/2026/03/16/%E8%BD%AF%E4%BB%B6%E6%94%BB%E9%98%B2%E8%B5%9Bmisc%E8%B5%9B%E5%90%8E%E5%A4%8D%E7%8E%B0/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '软件攻防赛misc赛后复现',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="preload" href="/image/top-bg.jpg" as="image"><style>
+  /* 🔥 页面背景：替换为你要的颜色（示例用浅灰蓝 #f5f7fa，可自行修改） */
+  body, html {
+    background: #f5f7fa !important; /* 你可替换成任意颜色值，比如 #f0f2f5、#eef1f5 等 */
+    color: #333 !important;
+  }
+  /* 页面容器：居中+留白 */
+  #content-inner {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  /* 文章卡片：保留纯白色 */
+  .recent-post-item {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 30px !important;
+    margin-bottom: 25px !important;
+    /* 保留左侧暖棕渐变点缀（可选，不喜欢可删除） */
+    border-left: 4px solid;
+    border-image: linear-gradient(to bottom, #e67e22, #d35400) 1 !important;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  /* 卡片hover效果 */
+  .recent-post-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+  }
+  /* 卡片右上角小点缀（可选，不喜欢可删除） */
+  .recent-post-item::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(45deg, #e67e22, #d35400);
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+  /* 文章标题：深色调 */
+  .post-title {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 12px !important;
+    padding-right: 20px;
+  }
+  /* 文章摘要：中灰色 */
+  .post-excerpt {
+    color: #555 !important;
+    line-height: 1.7 !important;
+    font-size: 15px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  /* 发布时间：暖灰色+小图标 */
+  .post-meta {
+    color: #777 !important;
+    font-size: 14px !important;
+    margin-top: 10px !important;
+  }
+  .post-meta:before {
+    content: "📅 ";
+    color: #e67e22;
+  }
+  /* 侧边栏：保留纯白色 */
+  .card-widget {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 25px !important;
+    margin-bottom: 20px !important;
+  }
+  /* 侧边栏标题：深色调 */
+  .aside-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f5f7fa !important; /* 和背景色呼应 */
+    margin-bottom: 15px !important;
+    color: #2c3e50 !important;
+  }
+  /* 标签/分类：浅橙底点缀 */
+  .tag-cloud-list a, .category-list a {
+    background: #fef6e9 !important;
+    color: #e67e22 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    margin: 0 5px 8px 0 !important;
+    display: inline-block !important;
+  }
+  /* 代码块：保留纯白色 */
+  figure.highlight {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    border: none !important;
+  }
+  .highlight code {
+    color: #2c3e50 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  /* 行内代码：保留纯白色 */
+  p code, li code {
+    background: #ffffff !important; /* 纯白背景 */
+    color: #e67e22 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  }
+  /* 顶部图加载优化 */
+  #page-header {
+    background-image: url(/image/top-bg.jpg) !important;
+    background-size: cover !important;
+    background-position: center !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .top-img {
+    background: url(/image/top-bg.jpg) center/cover !important;
+  }
+</style>
+<meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/image/top-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">hfddh666's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">软件攻防赛misc赛后复现</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">软件攻防赛misc赛后复现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-03-16T12:18:36.000Z" title="发表于 2026-03-16 20:18:36">2026-03-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-03-16T13:35:45.903Z" title="更新于 2026-03-16 21:35:45">2026-03-16</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div id="post-outdate-notice" data="{&quot;limitDay&quot;:365,&quot;messagePrev&quot;:&quot;本文最后更新于&quot;,&quot;messageNext&quot;:&quot;天前，文中内容可能已过时。&quot;,&quot;postUpdate&quot;:&quot;2026-03-16 21:35:45&quot;}" hidden></div><h2 id="1-图片恢复"><a href="#1-图片恢复" class="headerlink" title="1.图片恢复"></a>1.图片恢复</h2><p>首先，先打开<code>010editor</code>看看，可以发现<code>20h 4</code>的位置有个<code>PNG，IHDR</code>，符合<code>png</code>的结构，所以把前面的东西去掉，改一下文件名后缀，就可以生成图片了</p>
+<img src="C:/Users/shizihang/AppData/Roaming/Typora/typora-user-images/1773663829565.png" alt="1773663829565" style="zoom:50%;" />
+
+<p>图片：</p>
+<img src="C:/Users/shizihang/Desktop/1.png" alt="1" style="zoom:33%;" />
+
+<h2 id="2-文件分析"><a href="#2-文件分析" class="headerlink" title="2.文件分析"></a>2.文件分析</h2><p>然后这里是用到一个<code>zsteg</code>的工具，个人认为他和<code>binwalk</code>区别是<code>binwalk</code>提取的是文件本身自带的完整的内容，而<code>zsteg</code>更像是将零碎的碎片拼接起来</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ zsteg <span class="number">1.</span>png </span><br><span class="line">chunk:<span class="number">2</span>:I        .. text: <span class="string">&quot;\npj6&gt;-Y\&quot;q&quot;</span></span><br><span class="line">b1,r,msb,xy         .. file: Applesoft BASIC program data, first line number <span class="number">132</span></span><br><span class="line">b1,rgb,lsb,xy       .. text: <span class="string">&quot;flag.zip&quot;</span></span><br><span class="line">b1,bgr,lsb,xy       .. &lt;wbStego size=<span class="number">0x8c19</span> ext=<span class="string">&quot;\x00Q&amp;&quot;</span> data=<span class="string">&quot;\x01\x84\x11\x00\x00\x00\b\x00\x05\x8C&quot;</span>... even=false hdr=nil enc=nil mix=nil controlbyte=nil&gt;</span><br><span class="line">b1,bgr,msb,xy       .. file: OpenPGP Public Key</span><br><span class="line">b2,rgb,msb,xy       .. text: <span class="string">&quot;*.AUUUUUuUU&quot;</span></span><br><span class="line">b2,bgr,msb,xy       .. text: <span class="string">&quot;.QTUUUUUWU&quot;</span></span><br><span class="line">b4,r,msb,xy         .. text: <span class="string">&quot;w333wwwww&quot;</span></span><br><span class="line">b4,b,msb,xy         .. text: <span class="string">&quot;w3333333www&quot;</span></span><br><span class="line">b4,rgb,msb,xy       .. text: <span class="string">&quot;www7wwww&quot;</span></span><br><span class="line">b4,bgr,msb,xy       .. text: <span class="string">&quot;www7wwwww&quot;</span></span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后是提取文件，我们看到<code>flag.zip</code>是<code>b1,rgb,lsb,xy</code>，那么可以用<code>zsteg -E &quot;b1,rgb,lsb,xy&quot; 1.png &gt; flag.zip</code>可以获得到一个名为flag.zip的压缩包，但是会发现得到的不是压缩包，是一个文件，我们看下，可以找到从118行后是报错的，这说明图片是一个假高度，所以把图片高度改为118(0x76)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[!] ZPNG::ScanLine: <span class="comment">#105: invalid filter 254, assuming FILTER_NONE</span></span><br><span class="line">[!] ZPNG::ScanLine: <span class="comment">#106: invalid filter 255, assuming FILTER_NONE</span></span><br><span class="line">[!] ZPNG::ScanLine: <span class="comment">#108: invalid filter 253, assuming FILTER_NONE</span></span><br><span class="line">[!] ZPNG::ScanLine: <span class="comment">#109: invalid filter 254, assuming FILTER_NONE</span></span><br><span class="line">[!] ZPNG::ScanLine: <span class="comment">#111: invalid filter 254, assuming FILTER_NONE</span></span><br><span class="line">[!] ZPNG::ScanLine: <span class="comment">#114: invalid filter 255, assuming FILTER_NONE</span></span><br><span class="line">[!] ZPNG::ScanLine: <span class="comment">#116: invalid filter 255, assuming FILTER_NONE</span></span><br><span class="line">[!] ZPNG::ScanLine: <span class="comment">#117: invalid filter 255, assuming FILTER_NONE</span></span><br><span class="line">[!] ZPNG::ScanLine: <span class="comment">#118: invalid filter 254, assuming FILTER_NONE</span></span><br><span class="line">/var/lib/gems/<span class="number">3.0</span><span class="number">.0</span>/gems/zpng-<span class="number">0.4</span><span class="number">.6</span>/lib/zpng/image.rb:<span class="number">395</span>:<span class="keyword">in</span> `[]<span class="string">&#x27;: undefined method `[]&#x27;</span> <span class="keyword">for</span> nil:NilClass (NoMethodError)</span><br><span class="line">	<span class="keyword">from</span> /var/lib/gems/<span class="number">3.0</span><span class="number">.0</span>/gems/zsteg-<span class="number">0.2</span><span class="number">.14</span>/lib/zsteg/extractor/color_extractor.rb:<span class="number">42</span>:<span class="keyword">in</span> `block (<span class="number">2</span> levels) <span class="keyword">in</span> color_extract<span class="string">&#x27;</span></span><br><span class="line"><span class="string">	from /var/lib/gems/3.0.0/gems/zsteg-0.2.14/lib/zsteg/extractor/color_extractor.rb:117:in `block (2 levels) in coord_iterator&#x27;</span></span><br><span class="line">	<span class="keyword">from</span> /var/lib/gems/<span class="number">3.0</span><span class="number">.0</span>/gems/zsteg-<span class="number">0.2</span><span class="number">.14</span>/lib/zsteg/extractor/color_extractor.rb:<span class="number">117</span>:<span class="keyword">in</span> `step<span class="string">&#x27;</span></span><br><span class="line"><span class="string">	from /var/lib/gems/3.0.0/gems/zsteg-0.2.14/lib/zsteg/extractor/color_extractor.rb:117:in `block in coord_iterator&#x27;</span></span><br><span class="line">	<span class="keyword">from</span> /var/lib/gems/<span class="number">3.0</span><span class="number">.0</span>/gems/zsteg-<span class="number">0.2</span><span class="number">.14</span>/lib/zsteg/extractor/color_extractor.rb:<span class="number">117</span>:<span class="keyword">in</span> `step<span class="string">&#x27;</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<p>然后重新运行就可以了，解压一下，可以获得到7个压缩包，每个压缩包都要密码，由字面意思可以知道通过其余6个zip获得密码就可以了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ ls</span><br><span class="line"><span class="number">1.</span>png  flag.<span class="built_in">zip</span></span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ unzip flag.<span class="built_in">zip</span></span><br><span class="line">Archive:  flag.<span class="built_in">zip</span></span><br><span class="line">warning [flag.<span class="built_in">zip</span>]:  <span class="number">4</span> extra <span class="built_in">bytes</span> at beginning <span class="keyword">or</span> within zipfile</span><br><span class="line">  (attempting to process anyway)</span><br><span class="line">replace flag.<span class="built_in">zip</span>? [y]es, [n]o, [A]ll, [N]one, [r]ename: y</span><br><span class="line">  inflating: flag.<span class="built_in">zip</span>                </span><br><span class="line">  inflating: pass1.<span class="built_in">zip</span>               </span><br><span class="line">  inflating: pass2.<span class="built_in">zip</span>               </span><br><span class="line">  inflating: pass3.<span class="built_in">zip</span>               </span><br><span class="line">  inflating: pass4.<span class="built_in">zip</span>               </span><br><span class="line">  inflating: pass5.<span class="built_in">zip</span>               </span><br><span class="line">  inflating: pass6.<span class="built_in">zip</span>               </span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ ls</span><br><span class="line"><span class="number">1.</span>png     pass1.<span class="built_in">zip</span>  pass3.<span class="built_in">zip</span>  pass5.<span class="built_in">zip</span></span><br><span class="line">flag.<span class="built_in">zip</span>  pass2.<span class="built_in">zip</span>  pass4.<span class="built_in">zip</span>  pass6.<span class="built_in">zip</span></span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后我们看到每个pass*.zip压缩包都是4字节，那么我们猜到文本内容就是密码</p>
+<p>这里讲一下zip文件的特点，可以通过获取其<code>crc</code>来推断出文本内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pass1.<span class="built_in">zip</span>                      ← ZIP文件本身</span><br><span class="line">    │</span><br><span class="line">    └── data1.txt (加密的)      ← ZIP包含的TXT文件</span><br><span class="line">         │</span><br><span class="line">         └── 内容: <span class="string">&quot;c1!x&quot;</span>       ← TXT文件里的文本（<span class="number">4</span>字节）</span><br><span class="line">              ↑</span><br><span class="line">              └─ CRC32: ce70d424 是从这里算出来的！</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ zipinfo -v pass1.<span class="built_in">zip</span> | grep CRC</span><br><span class="line">  <span class="number">32</span>-bit CRC value (<span class="built_in">hex</span>):                         ce70d424</span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ zipinfo -v pass2.<span class="built_in">zip</span> | grep CRC</span><br><span class="line">  <span class="number">32</span>-bit CRC value (<span class="built_in">hex</span>):                         f90c8a70</span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ zipinfo -v pass3.<span class="built_in">zip</span> | grep CRC</span><br><span class="line">  <span class="number">32</span>-bit CRC value (<span class="built_in">hex</span>):                         ff3fe4bb</span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ zipinfo -v pass4.<span class="built_in">zip</span> | grep CRC</span><br><span class="line">  <span class="number">32</span>-bit CRC value (<span class="built_in">hex</span>):                         242a5387</span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ zipinfo -v pass5.<span class="built_in">zip</span> | grep CRC</span><br><span class="line">  <span class="number">32</span>-bit CRC value (<span class="built_in">hex</span>):                         9a27098e</span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ zipinfo -v pass6.<span class="built_in">zip</span> | grep CRC</span><br><span class="line">  <span class="number">32</span>-bit CRC value (<span class="built_in">hex</span>):                         d3f6df9f</span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-脚本"><a href="#3-脚本" class="headerlink" title="3.脚本"></a>3.脚本</h2><p><strong>本人比较废物，脚本是纯ai的</strong></p>
+<h3 id="关于zip文件CRC爆破脚本"><a href="#关于zip文件CRC爆破脚本" class="headerlink" title="关于zip文件CRC爆破脚本"></a>关于zip文件CRC爆破脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line"><span class="keyword">import</span> itertools</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"></span><br><span class="line">crc_dict = &#123;</span><br><span class="line">    <span class="string">&#x27;ce70d424&#x27;</span>: <span class="string">&#x27;pass1&#x27;</span>, </span><br><span class="line">    <span class="string">&#x27;f90c8a70&#x27;</span>: <span class="string">&#x27;pass2&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;ff3fe4bb&#x27;</span>: <span class="string">&#x27;pass3&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;242a5387&#x27;</span>: <span class="string">&#x27;pass4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;9a27098e&#x27;</span>: <span class="string">&#x27;pass5&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;d3f6df9f&#x27;</span>: <span class="string">&#x27;pass6&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">targets = &#123;<span class="built_in">int</span>(k, <span class="number">16</span>): v <span class="keyword">for</span> k, v <span class="keyword">in</span> crc_dict.items()&#125;</span><br><span class="line">chars = <span class="string">&quot;&quot;</span>.join(<span class="built_in">chr</span>(i) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">32</span>, <span class="number">127</span>))</span><br><span class="line">results = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;开始爆破 4 字节密码...&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> itertools.product(chars, repeat=<span class="number">4</span>):</span><br><span class="line">    s = <span class="string">&quot;&quot;</span>.join(p)</span><br><span class="line">    crc = binascii.crc32(s.encode()) &amp; <span class="number">0xffffffff</span></span><br><span class="line">    <span class="keyword">if</span> crc <span class="keyword">in</span> targets:</span><br><span class="line">        name = targets[crc]</span><br><span class="line">        results[name] = s</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;[+] <span class="subst">&#123;name&#125;</span> = &#x27;<span class="subst">&#123;s&#125;</span>&#x27; (CRC: <span class="subst">&#123;crc:08x&#125;</span>)&quot;</span>)</span><br><span class="line">        <span class="keyword">del</span> targets[crc]</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> targets:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n=== 爆破结果 ===&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">7</span>):</span><br><span class="line">    key = <span class="string">f&#x27;pass<span class="subst">&#123;i&#125;</span>&#x27;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;key&#125;</span>: <span class="subst">&#123;results.get(key, <span class="string">&#x27;未找到&#x27;</span>)&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(results) == <span class="number">6</span>:</span><br><span class="line">    password = <span class="string">&quot;&quot;</span>.join([results[<span class="string">f&#x27;pass<span class="subst">&#123;i&#125;</span>&#x27;</span>] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">7</span>)])</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;\n🎉 最终密码是: <span class="subst">&#123;password&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ python3 <span class="number">1.</span>py</span><br><span class="line">开始爆破 <span class="number">4</span> 字节密码...</span><br><span class="line">[+] pass2 = <span class="string">&#x27; is &#x27;</span> (CRC: f90c8a70)</span><br><span class="line">[+] pass5 = <span class="string">&#x27;%fXY&#x27;</span> (CRC: 9a27098e)</span><br><span class="line">[+] pass6 = <span class="string">&#x27;PkaA&#x27;</span> (CRC: d3f6df9f)</span><br><span class="line">[+] pass3 = <span class="string">&#x27;c1!x&#x27;</span> (CRC: ff3fe4bb)</span><br><span class="line">[+] pass1 = <span class="string">&#x27;pass&#x27;</span> (CRC: ce70d424)</span><br><span class="line">[+] pass4 = <span class="string">&#x27;xtLf&#x27;</span> (CRC: 242a5387)</span><br><span class="line"></span><br><span class="line">=== 爆破结果 ===</span><br><span class="line">pass1: <span class="keyword">pass</span></span><br><span class="line">pass2:  <span class="keyword">is</span> </span><br><span class="line">pass3: c1!x</span><br><span class="line">pass4: xtLf</span><br><span class="line">pass5: %fXY</span><br><span class="line">pass6: PkaA</span><br><span class="line"></span><br><span class="line">🎉 最终密码是: <span class="keyword">pass</span> <span class="keyword">is</span> c1!xxtLf%fXYPkaA</span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>得到密码是<code>c1!xxtLf%fXYPkaA</code></p>
+<p>然后输入密码得到的一个文件的内容，叫做零宽字符隐写，我肉眼看是没有红点，但我不知道为什么复制黏贴会有</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag <span class="keyword">is</span> here​‌‌​​‌​​​‌‌​​​​‌​‌‌‌​​‌​​‌‌‌​‌​​​‌‌‌‌​‌‌​‌‌​​​‌​​‌‌​​‌‌​​​‌‌​‌​​​​‌‌​​​‌​​‌‌​​​​​​‌‌​​​​​‌‌​​‌​​​​‌‌‌​​‌​​‌​‌‌​‌​‌‌​​​‌‌​‌‌​​​‌‌​​‌‌‌​​​​‌‌​​‌​​​​‌​‌‌​‌​​‌‌​‌​​​​‌‌‌​​​​‌‌​​‌‌​​​‌‌​‌‌​​​‌​‌‌​‌​‌‌​​​​‌​​‌‌​​​​​​‌‌‌​​‌​​‌‌​‌​‌​​‌​‌‌​‌​​‌‌​‌​‌​​‌‌​‌​​​‌‌​​​‌‌​‌‌​​​‌​​‌‌​​‌‌​​‌‌​​​​‌​‌‌​​‌​​​​‌‌​​​‌​​‌‌‌​​​​​‌‌‌​​‌​‌‌​​‌​‌​​‌‌​​​‌​‌‌‌‌‌​‌</span><br></pre></td></tr></table></figure>
+
+<h3 id="零宽字符隐写脚本"><a href="#零宽字符隐写脚本" class="headerlink" title="零宽字符隐写脚本"></a>零宽字符隐写脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">decode_zero_width</span>(<span class="params">text</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    解码零宽字符隐写</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 零宽字符映射</span></span><br><span class="line">    zw_map = &#123;</span><br><span class="line">        <span class="string">&#x27;\u200b&#x27;</span>: <span class="string">&#x27;0&#x27;</span>,  <span class="comment"># 零宽空格</span></span><br><span class="line">        <span class="string">&#x27;\u200c&#x27;</span>: <span class="string">&#x27;1&#x27;</span>,  <span class="comment"># 零宽非连接符</span></span><br><span class="line">        <span class="string">&#x27;\u200d&#x27;</span>: <span class="string">&#x27;&#x27;</span>,   <span class="comment"># 零宽连接符（可能用作分隔）</span></span><br><span class="line">        <span class="string">&#x27;\ufeff&#x27;</span>: <span class="string">&#x27;&#x27;</span>    <span class="comment"># 零宽不换行空格</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    binary = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">for</span> char <span class="keyword">in</span> text:</span><br><span class="line">        <span class="keyword">if</span> char <span class="keyword">in</span> zw_map:</span><br><span class="line">            binary += zw_map[char]</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 二进制转文本</span></span><br><span class="line">    result = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(binary), <span class="number">8</span>):</span><br><span class="line">        <span class="keyword">if</span> i + <span class="number">8</span> &lt;= <span class="built_in">len</span>(binary):</span><br><span class="line">            byte = binary[i:i+<span class="number">8</span>]</span><br><span class="line">            result += <span class="built_in">chr</span>(<span class="built_in">int</span>(byte, <span class="number">2</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"><span class="comment"># 你的文本（包括&quot;flag is here&quot;后面的部分）</span></span><br><span class="line">encoded_text = <span class="string">&quot;flag is here​‌‌​​‌​​​‌‌​​​​‌​‌‌‌​​‌​​‌‌‌​‌​​​‌‌‌‌​‌‌​‌‌​​​‌​​‌‌​​‌‌​​​‌‌​‌​​​​‌‌​​​‌​​‌‌​​​​​​‌‌​​​​​‌‌​​‌​​​​‌‌‌​​‌​​‌​‌‌​‌​‌‌​​​‌‌​‌‌​​​‌‌​​‌‌‌​​​​‌‌​​‌​​​​‌​‌‌​‌​​‌‌​‌​​​​‌‌‌​​​​‌‌​​‌‌​​​‌‌​‌‌​​​‌​‌‌​‌​‌‌​​​​‌​​‌‌​​​​​​‌‌‌​​‌​​‌‌​‌​‌​​‌​‌‌​‌​​‌‌​‌​‌​​‌‌​‌​​​‌‌​​​‌‌​‌‌​​​‌​​‌‌​​‌‌​​‌‌​​​​‌​‌‌​​‌​​​​‌‌​​​‌​​‌‌‌​​​​​‌‌‌​​‌​‌‌​​‌​‌​​‌‌​​​‌​‌‌‌‌‌​‌&quot;</span></span><br><span class="line"></span><br><span class="line">result = decode_zero_width(encoded_text)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;解码结果: <span class="subst">&#123;result&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="flag"><a href="#flag" class="headerlink" title="flag"></a>flag</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ python3 <span class="number">2.</span>py</span><br><span class="line">解码结果: dart&#123;bf4100d9-cc8d-48f6-a095-54cbfad189e1&#125;</span><br><span class="line">lion@lion-virtual-machine:~/<span class="number">1</span>$ </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>1.要懂得<code>png</code>文件的格式</p>
+<p>2.懂得<code>binwalk</code>和<code>zsteg</code>的区别</p>
+<p>3.zsteg使用方法</p>
+<p>4.CRC爆破脚本（不能用ai是真的没招了，但是网上应该可以找到网站破解）</p>
+<p>5.零宽字符隐写脚本</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io">hfddh666</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io/2026/03/16/%E8%BD%AF%E4%BB%B6%E6%94%BB%E9%98%B2%E8%B5%9Bmisc%E8%B5%9B%E5%90%8E%E5%A4%8D%E7%8E%B0/">https://hfddh666.github.io/2026/03/16/%E8%BD%AF%E4%BB%B6%E6%94%BB%E9%98%B2%E8%B5%9Bmisc%E8%B5%9B%E5%90%8E%E5%A4%8D%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://hfddh666.github.io" target="_blank">hfddh666's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/misc/">misc</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/03/15/%E9%9A%8F%E6%9C%BA%E6%95%B0%E6%A0%A1%E9%AA%8C/" title="随机数校验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">随机数校验</div></div><div class="info-2"><div class="info-item-1">前言前面提到了伪随机数校验，这里讲下如果是真随机怎么爆破和怎么执行c语言代码 [nssround#6 team]rand(v1)以这道题为例子，别的不说了，就重点说怎么绕过随机数 IDA查看代码的意思就是从文件中读取8个字节为种子，然后将第一个申城的随机数给到v7，没什么用，然后是将第二个随机数开始验证，我们要使v13不断增加到10，使其进入if条件，然后就是进行栈溢出了 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162__int64 __fastcall main(int a1, char **a2, char **a3)&#123;  int v4; // [rsp+4h] [rbp-2Ch] BYREF  int v5; // [rsp+8h] [rbp-28h]  char v6[4]; // [rsp+Ch] [rbp-24h] BYREF  int v7; // [rsp+10h] [rb...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/03/08/misc-%E5%9B%BE%E7%89%87%E9%9A%90%E5%86%99/" title="misc-图片隐写"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-08</div><div class="info-item-2">misc-图片隐写</div></div><div class="info-2"><div class="info-item-1">前言学点别的东西玩一玩~~，本人纯菜 PNGPNG图片特点首先，先了解下png图片在010editor的呈现  PNG文件格式是一个8字节的标识以及其他后续数据块（IHDR） 这里我们看下前八个字节 12345689 50 4E 47 0D 0A 1A 0A89相当于是png的一个身份认证50 4E 47就是png的ASCII码0D 0A：用于DOS-Unix数据的换行符转换1A：在DOS命令行下，用于阻止文件显示的文件结束符0A：Unix风格的换行符，用于Unix-DOS换行符的转换  方法修改文件格式所以判断PNG文件格式时，直接将其拖进010editor看前八个字节就好了，是的话改个后缀 倒转文件byte有的时候打开010editor，发现整个文件的内容全部逆置了，那需要一个小脚本修复一下就好了 1234a = open(&#x27;flag.jpg&#x27;,&#x27;rb&#x27;)  #以二进制形式读取方式（rb）打开图片b = open(&#x27;png.png&#x27;,&#x27;wb&#x27;)  #以二进制形式写入内容给png。pngb = b....</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">hfddh666</div><div class="author-info-description">欢迎访问 hfddh666 的博客！</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" href="/about/"><i class="fab fa-github"></i><span>关于我</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9B%BE%E7%89%87%E6%81%A2%E5%A4%8D"><span class="toc-number">1.</span> <span class="toc-text">1.图片恢复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">2.文件分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%84%9A%E6%9C%AC"><span class="toc-number">3.</span> <span class="toc-text">3.脚本</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Ezip%E6%96%87%E4%BB%B6CRC%E7%88%86%E7%A0%B4%E8%84%9A%E6%9C%AC"><span class="toc-number">3.1.</span> <span class="toc-text">关于zip文件CRC爆破脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%B6%E5%AE%BD%E5%AD%97%E7%AC%A6%E9%9A%90%E5%86%99%E8%84%9A%E6%9C%AC"><span class="toc-number">3.2.</span> <span class="toc-text">零宽字符隐写脚本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#flag"><span class="toc-number">4.</span> <span class="toc-text">flag</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/03/16/%E8%BD%AF%E4%BB%B6%E6%94%BB%E9%98%B2%E8%B5%9Bmisc%E8%B5%9B%E5%90%8E%E5%A4%8D%E7%8E%B0/" title="软件攻防赛misc赛后复现">软件攻防赛misc赛后复现</a><time datetime="2026-03-16T12:18:36.000Z" title="发表于 2026-03-16 20:18:36">2026-03-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/03/15/%E9%9A%8F%E6%9C%BA%E6%95%B0%E6%A0%A1%E9%AA%8C/" title="随机数校验">随机数校验</a><time datetime="2026-03-15T14:24:51.000Z" title="发表于 2026-03-15 22:24:51">2026-03-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/03/10/CVE-2023-20073/" title="CVE-2023-20073">CVE-2023-20073</a><time datetime="2026-03-10T13:11:19.000Z" title="发表于 2026-03-10 21:11:19">2026-03-10</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/03/09/Django%E5%BC%80%E5%8F%91-%E4%BA%8C/" title="Django开发(二)">Django开发(二)</a><time datetime="2026-03-09T02:30:18.000Z" title="发表于 2026-03-09 10:30:18">2026-03-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/03/09/Django%E5%BC%80%E5%8F%91-%E4%B8%80/" title="Django开发(一)">Django开发(一)</a><time datetime="2026-03-09T02:28:45.000Z" title="发表于 2026-03-09 10:28:45">2026-03-09</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By hfddh666</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script>
+  // 枫叶脚本（数量减少，更轻盈）
+  $(document).ready(function() {
+    var leafCount = 0;
+    var maxLeaf = 15;
+    var fallSpeed = 1.8;
+    
+    function createLeaf() {
+      if (leafCount >= maxLeaf) return;
+      var size = Math.random() * 15 + 10;
+      var colors = ['#e65100','#ff7043','#f57c00'];
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      
+      var leaf = $('<div class="maple-leaf"></div>').css({
+        top: -size + 'px',
+        left: Math.random() * $(window).width() + 'px',
+        width: size + 'px',
+        height: size + 'px'
+      });
+      leaf[0].style.setProperty('--leaf-color', color);
+      leaf.find('::before').css('background', color);
+      
+      $('body').append(leaf);
+      leafCount++;
+      
+      leaf.animate({
+        top: $(window).height() + size + 'px',
+        left: "+=" + (Math.random() * 150 - 75) + "px",
+        rotate: Math.random() * 720 + 'deg'
+      }, fallSpeed * 20000, 
+      function() {
+        $(this).remove();
+        leafCount--;
+      });
+    }
+    for (var i = 0; i < 8; i++) createLeaf();
+    setInterval(createLeaf, 800);
+  });
+</script>
+<script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
