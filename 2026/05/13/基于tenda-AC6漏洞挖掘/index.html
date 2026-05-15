@@ -1,0 +1,358 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>基于tenda-AC6漏洞挖掘 | hfddh666's Blog</title><meta name="author" content="hfddh666"><meta name="copyright" content="hfddh666"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于tenda-AC6漏洞挖掘">
+<meta property="og:url" content="https://hfddh666.github.io/2026/05/13/%E5%9F%BA%E4%BA%8Etenda-AC6%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/index.html">
+<meta property="og:site_name" content="hfddh666&#39;s Blog">
+<meta property="og:description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hfddh666.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-05-13T11:50:16.000Z">
+<meta property="article:modified_time" content="2026-05-15T11:03:19.684Z">
+<meta property="article:author" content="hfddh666">
+<meta property="article:tag" content="Iot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hfddh666.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "基于tenda-AC6漏洞挖掘",
+  "url": "https://hfddh666.github.io/2026/05/13/%E5%9F%BA%E4%BA%8Etenda-AC6%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/",
+  "image": "https://hfddh666.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-05-13T11:50:16.000Z",
+  "dateModified": "2026-05-15T11:03:19.684Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "hfddh666",
+      "url": "https://hfddh666.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://hfddh666.github.io/2026/05/13/%E5%9F%BA%E4%BA%8Etenda-AC6%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '基于tenda-AC6漏洞挖掘',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="preload" href="/image/top-bg.jpg" as="image"><style>
+  /* 🔥 页面背景：替换为你要的颜色（示例用浅灰蓝 #f5f7fa，可自行修改） */
+  body, html {
+    background: #f5f7fa !important; /* 你可替换成任意颜色值，比如 #f0f2f5、#eef1f5 等 */
+    color: #333 !important;
+  }
+  /* 页面容器：居中+留白 */
+  #content-inner {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  /* 文章卡片：保留纯白色 */
+  .recent-post-item {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 30px !important;
+    margin-bottom: 25px !important;
+    /* 保留左侧暖棕渐变点缀（可选，不喜欢可删除） */
+    border-left: 4px solid;
+    border-image: linear-gradient(to bottom, #e67e22, #d35400) 1 !important;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  /* 卡片hover效果 */
+  .recent-post-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+  }
+  /* 卡片右上角小点缀（可选，不喜欢可删除） */
+  .recent-post-item::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(45deg, #e67e22, #d35400);
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+  /* 文章标题：深色调 */
+  .post-title {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 12px !important;
+    padding-right: 20px;
+  }
+  /* 文章摘要：中灰色 */
+  .post-excerpt {
+    color: #555 !important;
+    line-height: 1.7 !important;
+    font-size: 15px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  /* 发布时间：暖灰色+小图标 */
+  .post-meta {
+    color: #777 !important;
+    font-size: 14px !important;
+    margin-top: 10px !important;
+  }
+  .post-meta:before {
+    content: "📅 ";
+    color: #e67e22;
+  }
+  /* 侧边栏：保留纯白色 */
+  .card-widget {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 25px !important;
+    margin-bottom: 20px !important;
+  }
+  /* 侧边栏标题：深色调 */
+  .aside-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f5f7fa !important; /* 和背景色呼应 */
+    margin-bottom: 15px !important;
+    color: #2c3e50 !important;
+  }
+  /* 标签/分类：浅橙底点缀 */
+  .tag-cloud-list a, .category-list a {
+    background: #fef6e9 !important;
+    color: #e67e22 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    margin: 0 5px 8px 0 !important;
+    display: inline-block !important;
+  }
+  /* 代码块：保留纯白色 */
+  figure.highlight {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    border: none !important;
+  }
+  .highlight code {
+    color: #2c3e50 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  /* 行内代码：保留纯白色 */
+  p code, li code {
+    background: #ffffff !important; /* 纯白背景 */
+    color: #e67e22 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  }
+  /* 顶部图加载优化 */
+  #page-header {
+    background-image: url(/image/top-bg.jpg) !important;
+    background-size: cover !important;
+    background-position: center !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .top-img {
+    background: url(/image/top-bg.jpg) center/cover !important;
+  }
+</style>
+<meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">39</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/image/top-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">hfddh666's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">基于tenda-AC6漏洞挖掘</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">基于tenda-AC6漏洞挖掘</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-13T11:50:16.000Z" title="发表于 2026-05-13 19:50:16">2026-05-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-15T11:03:19.684Z" title="更新于 2026-05-15 19:03:19">2026-05-15</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div id="post-outdate-notice" data="{&quot;limitDay&quot;:365,&quot;messagePrev&quot;:&quot;本文最后更新于&quot;,&quot;messageNext&quot;:&quot;天前，文中内容可能已过时。&quot;,&quot;postUpdate&quot;:&quot;2026-05-15 19:03:19&quot;}" hidden></div><div class="hbe hbe-container" id="hexo-blog-encrypt"
+     data-hbe-format="4"
+     data-wpm="Oh, this is an invalid password. Check and try again, please."
+     data-whm="Oh, this is an invalid password. Check and try again, please."
+     data-salt="3e37742709c5d6f4557736c8452af5a695b0a49c3122527fef3d38bf80684639"
+     data-nonce="fed9d64644d57e15259fcc2b"
+     data-kdf-iterations="250000"
+     data-auto-save="false">
+  <script id="hbeData" type="hbeData">
+    e8cba89c450762822f0aeba8f54f584c038580f3c57649ed55ead7e19dceed78719c5affc1d6fe276b6c88a358cc41f4dbb5625b65e52937db031f23500c54b014fc8c2a2ae1134e20a05010fd0ff6b6be690f04e019a15713ff921d53e80d1a9fffd0223e4eb611231a4a08df715a502d251b65d9858f438ac4b33af58befa79e8ec3ce15478d3aaf9c286f3f15f7d87de84a7dcdf701a386756dbb2a81c177e1c8b7de49b1966fc1e5f4f690e7cdc9bf27e64c91614133331b361430d4e9898b01dacb816d9b252ae1e3db1d63ac65d8e3968ab22b5720d06ad914d723996557fbea1461d7634cb6da927fdfacd582ff77813e8576629f432ad1d2ea480bc53ecea37c9f6887310fb50b1d59f2e2a09d047496b1742aef14ff2a842ba79060c8cc61ec7b29616a53958afa291503ffde1753ce48782c02726d9399f7abe9c1fc4ff83b0b26e995fe7a917dad7d2fe8917f060b8f5372a523c1137a81c840e9d6fb2397db197697ecfb6660714b34eddc1eb7e977205f7123f353579a24bdddc59491a5d5bcc90857cbf028df9fc3450c84176b921ef3e1cb91b0aa472ad37ca20276c1bea98bbea632530a48eb5e6c7933ffa690e81b6f860b06e3e44a1a40d67912705308f866c6d71b424a9b37420b00edce20f48338745b9f2a450791dfb7d30a92fcf4c82708010c83221d7a2b19eb6ce44329400bc6eb1d6f81b2ba7fe42c72f460df8b22a339e2c04c181db60049628ce6c90e6de22472bd483ce7c53d9d74bd1ab87e3bc83d9848149bf4441d24313b825e0ddd439deaffd4968432b91b53083e74691955129e0742bdeedf284b06ac7eb9d39739603dd4e4b11543ddcb0c7e525754565bbc21ac52601370f3d1d9d43b5a99e0763c616a726d1568fdeacf23ed6a0fe6326f2dc2fa9a6cfd863b4b61fb6d584d70de886eda35cb98a93e7f1e89fbd0a12f38a7ed9c4351d33b6efadc2de8310f75eca0c677880ccb87dd1b26342b993decb47f71ec16f2bc2b9b775f624f56d8fcd4a263a0d1cdd42cbf6488c6d444188e420d4bf8d89a602c20b20fdb8c82ae45604694241d94704afddb87c931a629364037173bd5cd3e4b0dc0ed9cb740c81f1b8a72eae6e32a72b69e688b0455ed3ab6e440cd7b4c90c3e12fa9a84180303abad00488774e53195ebd3d8cfd9eb04f21ed0ace7141de920f66cc2357ee223df1c14616cb914214b8e2bf550df38b1ae2b87e5a7c70a41f897c1dfdd28300160778dd95b83b820f66f401f81ff1e61dd2cc6cc66bb4cb53e6ba8f71b8bdd6624e22ad542d5181a4c498f741d2b2ef54c749aee22b42f33e2abb6dcc1929804d2a76ec8b1aa842257aea89f019cc539fcc71b363634fa7e0aa7c6d92d83034e9994ebba6a13bcdae1d85a3d2a72491dd86cdafd80cf3ee22d804437f661d00dbb13982eff4bfe37b672f8c1fd4e4956cee5362b99df3fe03547719aee86e4564c2d8e833205aeabb5207d9d7870190bc97bbfa14fe5f74965edd8e854d527d7c212c0481ff32d03729f3f9d0b72e9352e60304fc3d86e1aa80f162480b2de359fceb566dc52467d9df8069df15d4c889e92f6d20f4114d36abbd788f4b73169ffad78bdfbfb6d13ea289484532506789cb6aaff4ca1e846aba2605d75cbeea96eeb14ef255facc91b6e284443983029aa15613d40e93e720c9be72eecc6d617cce667b858a4a53cbbde06cb8fff6b2049a6f884d9fac4a55031bef6426c9373dca395d384386936ebb754199cd9eacda28c4e4364be8c0667cbf6552334a8a1c21ae5c7d8fd8e1d341d6bf48ee669f13e9636f01d5512feb9e0e6817d0f30fefd1343bcf488bf9a0fef9bb645692460fb5a0c34c129cbe382724d88dcea26ae996e5bbd40ef11b48fb2c222b6a6f70057bd828cdd7096f81a126ec4578e0ad563aefff06bd150cf6fd2d4c0ccc73e4e71855894f8cb525e139fecda4ad4dc6d08d948f19d07d960e0935598867b5117a95d8f07b2ae2eec384122741827f0147261c06254b69511683abeb97545dcce7c1a46eed77e9ac651618589150e7a8b0b3ef1c9cd08a65316a7f408bcf6f4f9bbf5119660bc2a68f604f86581ff2ba3b81187831c06d3ce1566097a3db61ce1e927e4ea6cc046bb3bc7e1d8dd5955a81a72452cfc1d8a06732e57ff53fee05d782c8fca1d0c520b7ca8037e5ee50d7d8c748f3eff7714361fd1b9107026dbb7c719b322a35332b933fc8c88220b6d27c974dd8a35986323c3bf0f17e941b8c75413cdc71eea684f394575e5d2371db2828e8f1eec8931a422e0006359aba9c0f34f21f9696aa5d68693864f5dd30be5adf23c9bbf0ca633508860aab95141c40338a51fa8fee8b3d7fa8c514d6e9889f115731e79844fe50ff37f3ba8a518c2d024280743592bf8ccca76bd10119eca1bd2709b2e2fdfd07c99f3cbfde10cd47fce89635923b6e336748473616bcbad3930128839e11a7dce4381beb8fae89f9840234c50ff056450e333e2662b891e017ca9f87a7a3ad9b7c52774a212112d5caf96148aed610e5ea518a910fa1312bd6e8801b9ba164a1af76b7953e9a1326af903781cb9ce8bb0aad1a84473b053e7440de9d9d6e969f927dc1e27ed63d72bfe14cc35872ffd659ff9f8af29f0b09f2829606f84faade2a0dc9153789b60400da85c03c15c3d696c8a37d95b5a2806acc007fa6d06c0eab0d72ad9037bf92c633441f9cf26c0cdc539ddb82ba2a3451b0930bb645ccc020943c9377afa11e2998c8629e8fe85c8fcfd7db64e61fa6b560bd7f1a40bbe6f0ec17e0ce06befdadb99e3115e6a213f095432339f57ba2b026791f717ac3c1fb47d181a6037304e0e50fb60d20ba1860c979a814986152c662c2fcbe506b25e08551f62b752d5824ddb8e4fa5a3bbcbf043bc5f7013e55c7b374dd57cd613ccb443f6e270dba304894290081d156246f7ca6ea582a32630a79d5448ccc04177fd4b91cce9148ac8351f4bebe3c0536ae62b2dc80df0f6850c451b7a625bdb3adf920949f306324e88b2a736633dc6def0ec42b3e1e40c92519a8243f01833d340e728994cb5bab29957921572b37347617a4c288c00c2ddba55e16d8ef8591e27a6c52d8e894ac33b24fe3101855cf0f9bd0f3ad327e16c34965338b7127edba5dcf19d9ec0dbb55e8de63ffbf613118deb6d905fc63915ed0b5c44e9f454d30f2ec7834e5e5ce430a802fb422de3505b77d2ee681f65eae0e2098ac4a0db0d00f85704d69a765923982c06e2d1a4aa8a135d64031dfff5099c0e094e47f3a544792a9dbdc7d2be62b99921a49bb47c2994d3f8af7bf340d2296751a127983a678e824d586f76e2c87b0843757b22f4a4d44cc8838d649ad503456f6678e38503cedb02fd61812db6bd49a142eaaeb0f0aee0300e321ba8e30e5f6e245f950960adc911c273a4419d8aabe46def9a0f27ed272967b2a0f7648565b73a8a5a291ea30d57d54afb1474404e47859d1b84241040815c3ad51509a678ffe3c7e3ae45e6ece827b8fd9d2b7f710457f2e118c7881276df142e8139168cc7021de89003e83071ff4d62cf52b2ad30870fb27e3e48aaee5f8e6f130fb316db3b5a29aba7e494206ace905900ea4f9d5870acb67d8b5536c808964f75b72d60745189773d4b8129464a8c35523b64e5ee8c57367d08b2452e6bd4d7bafcbdfdbdfccad151f958bd943893407f1621a2e751ee9ed8a355d7a6ef7617d6ef9f24a5b484bf2e2bd413264f3cdaa6177c8ba479000be83011e466044d6dfca3410bab09b61d046f95f19526a54291b0adf7c86d389235a6622329dbba88d78d9e1aae884375167700089a6787b69a0349cb7c4c69c5bddbc4c0c39c00cfa620076bd78896250d49306f724b3172a558e186703eec2613ce5a7992d837e37ca52b83bab9d0e645a75723f64e678458e0a2884f521fbd378ed5f2a15792a6db0a0c8af2d22aa238216ed7a4220e2be616b0218d5f7a1037eeffe3dd91f7c9bf5d6b090aca65dc18263354269fc572d9faa9374523e27c4c249ca005d6e0e1d69e756ad4635600f0f772d1653c3159a2662137f286ad8692751310044fc1cb2b1dfc6d8d4c9b42aa9fe72432513a1fe7eef7d1cd74d04b5307e7cbeb88edf17c34d88fd4c26bd871dbab21d22a102bfb57b083fb3fdf60d7afa6fa9c22c40f01965b898ae9445600119ac865f1ce5cc53c518d053c95e3a7582a8f66513e49e21ac5719d35a0e470df6563b3ee1f95e78e5e3bce42546d1efa5c376b0e4b7a23a6d32dbced904a8a71149a75f82cd5f44d49432abb5e4bfbb909910fa2e62673cd44bd7d7e2be58ced2bfeb844a918b5c4cc459ce9311144fb457601bb88426dd13b68e4b7d28fd916bcf190e955c51b4ceaaf901762e9386d2e06fa8c0e660ff75faaaa8466066eae4db0d97997634fce5ad8110d51e43811dd48c1173880bf72a7e223a719e325e8ecf431cbc14de0afb8b026af37ff51c5ea8ad7bd6f6376217e113ce466b319ee34380c571ddc2ca0f0a817ba028ea93df19351e926e6f6ec81358bd19b286c74d9694917497670b45b109275515d70b73526d79da9cb070ac36465399fe30b75aacc8f1d49abfa43b422c7684371c900467592ee1377052db7fb2463d96757e60ecd6e0fbf7d138500795ad37eaec8bfd7fe71337aee6311d0dad5ae8acde1b016b735245387f993f3c21a771a037ac8aeac55b1bad63db5f6ad5aedfc2156b434e5dd7243edcc4e9d767dab0efaf40e8d18ee72ee544503e685f5b244ba61d0cf51ed39be5858f50b661168bb253d7146ed4daf0f8c6d4211a4fec2c703705d61d4134c1207be3c2410ad06e79153991635e7ef352dd7ef583c10c7c8bf18469a3eb5457d98c1a398400601b850b4c1dac907695396d3b807c1ebaaad5cf9ffaaefec2af702a4f3bbf6eae5c3de6e0a79dc0f94f0689c78fb9039cd9fa26d40971531ec06437ce04964615395a3b57c3dd2919c2227099f65262f0faae54c9f6aad2ba38921d6d84907496c4599052b0af4aef2b13efb0da4939ac0861d6cb39758be1e359741c024c5b91b53f061a0862873d4f0bef6a9b14b2f83bb66dbc260b47386a66936bf03960b93597b10f23305c81fe138e8bc49fa4a53dd01872a43e88107ad0e373ea6b049856b6ecda94fc922966adaa4933ced54c4ee35dfc2bbfe6a7d3e86a1507b6cfef389e39a1346515f0280d1eb29cbafd28718c45b85d976547931ef2d9a492f2910bbe15f64158b13fef98c099d269dd84d60edacdea68f2411af4ee9272163eb69fc4e9a5a3326084d9ada611e7170f38f9060d6b15736cc04558b2c95bfc4c770bacad617a0425726af9a077e2ae0e63a1b8b56f06ce9bb62788b9456e1dff18fc8438f195ff028391ff41509692d8169ea83a187fb931067f3c42916132c785b46f588525e54272c353394448debd0669a92fc9623585dbb31a0980c43faff70d4314800de4e5038b87011aeaa2442595aa637911f8f82482ae626420df02120a7e7b65d67c7119ebd93b0b14a07be141bb16d5b56779d04a8a7e6e28d2976c4836f887637c85dd98eec3177cdff57813019c64c178f70fc651e9e063753c6860d79be691c43eca1ffa095a1301db97500ecf9720dc264d95a490bf5ead37cb216de05507b8d8f635a993622529e6cffcc2b43a9691780a758bdecf40897c0f834e9f5305a81885d32a9e138ba262bc6b37e033346ea91748ad5b5c56f9fc2ec31e8d4ea09e002ca87e72d73803dedfc67b11795c647752aed2e523d31a9ab191a0af5584f5bc2cb6fac511c14b01ddafb333203cacea54c2adc6d05113c484fa5134f3ba155d5c0b03544596a37d9df6e471a4e925399f1eecc53cb7f02ba31ec1357075cd7f39d139f8accb90ef71a805786d3cc108a3c101028d63ee3996c797ec4c5e4e033f1cd7dd33f887534cae2e55ebd3ef794df88310492cc5cfd840437ac0cc54a7ebb94f3b8c373a97675c7bbb765ef7556021a945e4851a685d67f058ccaae245d4732c760451f89f3673ec9b2e013c11cc6e88ec9cd9bc21a8355c95bb9fcd4de8496022a15bb07130b1331cdc4d3fcd2c3446afef9fcc3e16f2ca6931bda1a2ac94c8fa464bd4f12c75cd0cd5eb60613245a6fc7cf3471eb11e39f38e13f23392dec2db21860e06db028cfdc6dd16ec14ec34d155504f829c101b0c96bfc7ff173a5401390473160f1811050048f6d667f9da96bd6da4901109275960b08ce05dd6a62582388e2b9f610df2ace0242b58880807b3a17c3737e1b271dbff71bfc818ddd73d74ffa635ec366bf21fd07a4d0735698db65037e2424ae5c1e7e1f0b5b331ff6bd79e61c3f7ae276ad8fc72745b6b71db62db0fff0719b4def6f42c27a93a1e6c9d70cca08792ffcfcc106950c3af178654ace5e7e5b009b313ff85174224b98fcea4387632162b0d159a413df1deb657f4620c8458f93edc2cbd0d73f08f8c00b642505df8738175c936d755aaf45547dab6e68b56e6ea1d0ee6aef34c8e7112bf52f88d6ad30e89b84c6c89268d31a8c9a67eab605d400462fe357c60697c70965c866d2f689218e1b86031ad26dc03d4e4350b62e2b1c40c07e5ca57040da109ad78970d8aebb21d4921cee09a3a4c8cee19c8fbc4849bff0e9f389c61bc3dbd935506e10896d88f77a15580a3a9c08840c0483d4bdc77827d00976754a0b3aad459d949b6756666f020a5742b2e285ea09a28c5bc32bf901a86964c737b4c047caad599782fbda43abcab194c10ed9e4d97bcde5068eb63ff620c1c0f9a0652bb699c441848abcbec99901821526ae60267cdfe96456b7a6f703d9224b4466a23b90965d7a0af243ecb66fcc48050fffd672565ef0953c6f8f51e3de0e3f57f20002cbfff989d41431de1f26d77ac000f180923dc7c3f9b7d980b5807ab0b65fd424360d096716aeb0725aed4c70c3ab319e049dc9de2166cea1e98ce0e6086c3720f6abb45f654fdbb5c875369bb4aade3d2ed8b602a5abfc1fc59faeeac0ec996bd0ea3505cdecefb54a19975e7fa547c8fff1cbef6d6dc94d8b562ca7c2f4f113860eb2eadfd578e06a9683853441b2117fca30d1b5337da996d68807d7bbd3fe28158a784b15c4dfbf8f2730b469ba304edaae0eb7caf0768f4492f12c9cadb203ce1c746c39e31c8882f9f2ce4b270d44e5bed6e4c055da10d1909ca6bb67169fbdf6751b0b2d7387e43639eb65e42a9ac2aa551c541b227151d5ee23d6f35b6fc4bf5b1b02dc3ec1df9224892e9a939a470bb1956183898470813788ecd0b6699841eedef5de5bf0f581c196ed2604e6a9c96b17b68f96cf0448d89ed71baca31cc5b8c5210c71994daad6668ad45aa0a705e198276f38c3bea139262684da073becda9eafd925963438e9bfcc581fa6da2a0c82f70d4c9db291e67db69e789d4f346602675c94eae26b262f1a3fc605e2440a2d5c975d851a51e58d6f03ae03c3a935cf0bcce60423be7da0b711efcc542f1c7ab502821ff1c66cd5f655058bc2616d7d0fb99aa19f820f04bcfbb9cc207e5f9581d3fc758ac420c355841982bc124d3b3556c77be252f22e8c92fecd77e4c631ba5c9de2bf21096b8d755c6ca138abae370a9d9a3cdaaf04a127fa336078d7044c42b4f13e6672d09cc6098173a8fbc0989c911dbc8f95842749f1ca8ffbe612d2fe114683a35699450562b932b318ff7a8f6414648f415cfe8eeaccd503ade03f71f2f7d295be2f81c956dd4028d559b8b46a923135869157d491cb9a0b10e59b95a2a77f0c6594e59257b9f24bb7966d13bf79fd7d60fc8c5c1da873908582f99af6294d865cef9799c7863c1a3951769637f383bce17e9ffb141ff6574ca897e16abff462be61f8286d018354dce8010940bd327e45158fc8572b65de55f70f7d78664ff20d694acec511a830ee9ef714dd50ec31f86277ffa711cb0574286be57e12c5ee69a627343d2eefb4bc598d841c4c060603f090729232a1d9e551e7d08eb64d5fa8c75348014d8f8a60caac67f8d02f900cc1440e4ff4f570424e30381661bd65927fe997ec5df9662e6dd088d6572788d8c5b1b004b9bee512b835eaa365f10ed42b9f26c60c5a947dc05dea566cae4d4bf14448f7aa051b2c755529a4ee5c3a76139bdc1eebaac2cce2a5e30d61c953d0242af112dbfda247b553a87ed00348fb2c3d32030497d3d118eae7e0f8d173c89eaa7473df8101ae38523ce97d1cbe71f38a337728bab3f0b8489a3761c4ab79b7cc34f24d4c35ed0b18a3abb5310409b77ac80684e227d3c881dadb0bf5f7294c9df2117d00f08b27ed0de81c5743c73cb2c523bc1c4a4a16c334f2d92b15d662d1561d80cd9b8279b6f5dfce10bf7d661fc4b9db024c9abf20c039f58ea4a8ec5c1eac032fbc48a35713877dab38db2e440dacc54b922d3286dd9d774fa1e69cccfa14d4dea95223ba183f41e0efd4c0ba4e302e6aa3e99965e22601bb2dcefbb391e23c17de72bec8dc4a604a91a6cc406336d503f6391de6e4aa7aa7b7f2b2ea39006924b7c0cd229afec1ba9f7fca89086faf8803800249cbc8c8cfac0f7a14a22927d5eff36a16bc655617242a06e8e1ffd3648e18e964b7e5000d9ead06d2ce820d89d07b3413634a77cbbaa1a3d1e3b940181df1b396fdf5ba8b5044e84173d9b175b9f5c8f8c9d401ce7e2c9579a3a0aa27f28f17a33191b21249317689a77c80d1cd98bf960f6478054c08dfa32ffe78b5649a09a19e5a5f77648bd25c492ed64476aec74108e1bae54186053bc4fac21ad6cdd2665f79aef57a6c0287474933fa2213ca329768b3eeadab7904adcbc0e8a5f8a559ff293be46e9afc78c534b0ef2381404e40871d0aa93dee9cc087f052944f975236eae02d1462f186bfdc24b345618502672c11323fe8a77507b4c5695d4a7e7f8747a186944351f61c7e79fd97fa693621ebd77bff0856f28b4854f2f07c1ae7fbc02e52df18c6f074e9ba682976efefac21eeafe3e9b569a451cb182674d5c5a6a303148543e76eb7a2afa653f81b7d4afef79ddfa415e1fd1e572a071764618f9afdf3a35b00c8b72b95941264381a76892e0662b33398187f7b626b814de6cafd56f54181ae0a3ec3913bad64409d6f20720c4e735130bdad809cfe792c01392f6e216e58b152355d579923db7cdd3f66f20b0e68a9d82a3869e3900b3c2bbd23bdd9d2a694a7fbc966854ef0bbd3f2aeb1db49023e16c06b654f803a8229f7c570e5c2d3543f7a11a8e73e3aa59f13c18f5c411b934284e98542b1dada113f0ad04215787beed39ebc60af0c02446a738b826b84b937b33ffe3aa6500ba02dbb83b7d80a99517dd1f7d2b484de5395506ff24443fb40650be3c215e22e98322aba95a3ee782c7493edc36f98a07961fe3cc757a4513e943e983b0d44ee5af6a8fa0ca57b3eba92a719440a8d84a78ac650bcfc0aa7c68086a425f8f6372456e991c73bca8dd4929efd7890e3879d8a4b944b485f37f3fa1e923ea42037c136dda17bf69676603b01106de5c33a359dc63d9bad5a2f307cbda395cb37009648b503d2b7a660dc4bcc9ede24d268efd9ec647bc1a1a9bf1730fcc20d2f8b0ba4f85965fe9b6b0708fd6055fa0a9c2d3e45554c3ef8daea5919b6de3a0c87aa5667d38e7797a7c2e532a2f2c3190f1557b66bf987c9c951261290a3dc1c467e8bb0df933b47320439eaf625e19c36311d436f6edbeee10fb8f85b03b3d392960df49386787e3b37f1f47bde7992661b78ac26cddfb85af1e480bba275b24a604503bd0dfd8cfa9b04a32b0fdd9f924173163f9ced6e024a79c85a6a0d95326408468fd355081334c752e1297439e281d287b2e7279d902968b1d49e27d06e4e8bfa035de8ae49f02791e75c56ee8f1aca2b64cb7d1e61d566cee182ba42c7127c2ffe536505ca57317fd55f97342c0bd98a57276a7a9af71150bd16d32f19be123bc67856437caeff0ebdd5a9d1c723631543b42d7da9a707e92a6bed653aef43b69cde6b5d28751a8ffab9f89ba5d450be4229dfa8425084c560f638ad9f228bc2b6ea379db0069a6f0c383414cf4831ac7a85ff061347f9e4cda88916bc0bbf0cca6f5dc6c1dc109c9ebc827a3ce9f061827f7f32549972388242cf8d6783bab43726679a15ade8b98bb3af766f3f8902bbaa3bdf038c4be5b819d1748ab2904161011e663a3776cb92d6e9c693075b510207c61168cb60c040c25b90078a72d60ae85f62314d924ef6981eb669204e0d84271260ab7b7298a0449013a7b5f805bbdaf40e8b34fb4ff32a6a2e0e53878426c7e3ba465b5f5508534db750c86e40ce55ed692442086a946117e76f230ef2a155cffa858fe8fc21c47e0d36cb055107a1ba8e564b9e5b17cf389b991ac4314499115ec7e3c9589de4051d6e5fd356be5aaab1b785c1c566d622af5ed4d1b1fbd0290dc96a922789e6418aa2d43a86adaa5572613ec6fb8a0bc16d012ba55587cae30824ae376ee9e8411010edc9e9e6463be038c1a178bd8f6b062b2c0b4ccddb8022cf02df59a84a899dade9b5e8e4a7a44f823db0e5afa57f1ac5b6364830c24accab89ea5cb918de69e38cc51f5cf1d6c7682cb926d47175a1050fc7337fdb24a63e81e00c8559fdd14b148c8ffb1ddb0341685b9c05005e784f6d13383f2c8c8e06e5d8a7ad0b5dc71b95bb7e91c5854a5d91b4bcaeb37af80547cc44253d4fd098c213ab9f4def49de33c883869dc4921ae81cce76397317d5f4e95234b577a155efe7211dbc44a3a7ac446f1b1c2290d9aa5a454a72819761e6b50837e12da77615de4e745db05a83a751dcfe361486540adff943ebd526bdb6a2d7c442a0e9b8a29f86cdeb2631ec2e6ddc76a1cd6075c5e2da371c357457b66c96c0e88a2d42ed80360a05e9f08b27783ce0de2a111ee7d67a2c6949d43fea623cfc091c98f6710b0a863cc658ecd08d7f346109465a8482941b0960fa38579fd7c26d12a9807eff408b9e4d9471741fd87d2a0684aee8dfb1c48aa734f34f403d8d85095a744a14c5117ce5e95857eedd52398ef96d5d325c1e8e0a7bfbed75380f4589cc65555b11937ce0e9726efb091de9711f051b270182f62bd0be614af0fb506a4bdea0c26d48188c63476766918fcbc95ee38829cdf067684386477b94d598e357137ded84e24e7f97139dfb80577e0aef83cfa32230b640714ee195c61e9d59f91db4725b4cc7caf74e40d45b5ccfeefee2c557e7c4eb0f68c4f3b2462084cd4291fff5e60ad42fc5f430757abe5fe3e5fa6c7194085521b7e5892de253b6bbf1b64dbe067faf5e61265eedd5699bea787f1576546fc8251531256f7cf94901540e5ef2bfebe0159681f13b556725662f81be53e449b9795def8a46a3d8ebb6a2b1e90486f680153dfd36529b93bbd994c3c37551b9c4f46a3e6060a7003839e009a20a696fc9f26e82f44310f2293c8fdeab7c49eb70a6f049d3e4bc4efe480d3f00d64eeadf9cfed56270f330ef1197f333f23975870a923312f76f48398f23405c8f39466f843f9438744ed3208585aaf9f8815805df4c831aaf6f08f0959a7654803bb9cfd7e761dba8abc3f277f8b3caae9cb22d43eca36f205e24b6e231fc220eeb5b6a7c9f7f1b0f33695557cd9ea78e5df951af9cc29c1e2aaa80859d3f58b226f80c48a1284eaef73cb994aee8fd5faffacd5f5500070e4df070d7d79aface1dc156cbe6f354107e0839f2ff46c18b659e4906ea9561ef6944619a45392ca14094025d0fff4f3e45e36d0952c3bd3c3a4f8cbd43cf91ee14687a8d0a85ce0b2ea0c72500f9f765fbbf9c140b4635522965ce637f3f451ae47a1e244c0e7b653c5ef12d6442947851a21cb5d264d547892a01685e02b89bb15e41c2ed68ae70cf9bda2c1f7c5c9ee8f7e28b9848f86415474385aec735f85cf9d984269ccb93d495f00388ecf28eb5f22f71104dc714c424602f5d7244c15f84883454a2483e1a45c677e4db264c9cd04cda812f816b23a7fd6e92008c5dadb3bfe06bb7d720eb00e7f4543d1d1245b6fd58a6251d828cc8d85c5286e4980e95a2127af872ea4652bc1afa44c0167414aeac781c6037b
+  </script>
+  <div class="hbe hbe-content">
+    <form id="hbeForm" class="hbe hbe-form" onsubmit="return false">
+      <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
+      </label>
+    </div>
+      <button class="hbe hbe-button" type="submit">Decrypt</button>
+      <div class="hbe hbe-error" role="alert" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.9a88ff0505.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css"></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io">hfddh666</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io/2026/05/13/%E5%9F%BA%E4%BA%8Etenda-AC6%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/">https://hfddh666.github.io/2026/05/13/%E5%9F%BA%E4%BA%8Etenda-AC6%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://hfddh666.github.io" target="_blank">hfddh666's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Iot/">Iot</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/14/Totolink-NR1800X%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="Totolink NR1800X漏洞复现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Totolink NR1800X漏洞复现</div></div><div class="info-2"><div class="info-item-1">固件下载与系统模拟固件：首先是下载对应版本固件NR1800X_V9.1.0u.6279_B20210910.bin：https://www.totolink.net/home/menu/detail/menu_listtpl/download/id/225/ids/36.html  然后是binwalk解压，接着看busybox架构,发现是mips小端   然后是下载对应镜像 Index of &#x2F;~aurel32&#x2F;qemu&#x2F;mipsel  我是下载这两个   系统模拟这里是采用tap0+nat模式 现在本地创建 12sudo tunctl -t tap0 -u $(whoami)sudo ifconfig tap0 192.168.10.1 netmask 255.255.255.0  然后qemu系统启动 12345sudo qemu-system-mipsel -M malta \    -kernel vmlinux-3.2.0-4-4kc-malta \    -hda debian_squeeze_mipsel_standard.qcow2...</div></div></div></a><a class="pagination-related" href="/2026/04/29/TP-Link-SR20%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="TP-Link SR20命令执行漏洞复现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">TP-Link SR20命令执行漏洞复现</div></div><div class="info-2"><div class="info-item-1">TP-Link SR20命令执行漏洞复现介绍TDDP协议是TP-link设备的调试协议，该协议的版本分为两种，version1&#x2F;2，version1版本无需身份验证和对数据包加密，而version2要，所以只需向SR20设备的UDP 1040端口发送特定数据就可以了 固件模拟问题从 Download for SR20 | TP-Link 官网上下载 SR20(US)_V1_180518 ，binwalk一下，然后寻找一下tddp文件，qemu用户态启动，发现卡住了，我们gdb-multiarch连接上发现程序是卡在了select函数，然后IDA静态分析一下看看           IDA查找原因我们发现程序是输出了一个tddp task start字符，然后查找一下，发现是调用在sub_936c函数上 123$ sudo chroot ./ ./qemu-arm-static ./usr/bin/tddp        [sudo] yy 的密码： [tddp_taskEntry():151] tddp task start      sub_936c&#96;：v7 ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/10/07/DIR-815/" title="DIR-815"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-07</div><div class="info-item-2">DIR-815</div></div><div class="info-2"><div class="info-item-1">首先：123wget https://unzip 文件名binwalk -Me .bin  IDA：漏洞函数123456789101112131415161718192021222345行	v0是请求方式，发现是post方式if ( strcasecmp(v0, &quot;POST&quot;) )&#123;  v1 = &quot;unsupported HTTP request&quot;;  goto LABEL_7;&#125;50行	进入这个函数cgibin_parse_request(sub_409AC4, 0, 0x20000);50/22行	输入两个环境变量，getenv为查找变量的值 if ( getenv(&quot;CONTENT_TYPE&quot;) &amp;&amp; (v6 = getenv(&quot;CONTENT_LENGTH&quot;)) != 0 )  50/32	 v10 = getenv(&quot;REQUEST_URI&quot;);  回到hedwigcgi_main: 67行	进入这个函数 sess_get_uid(v4...</div></div></div></a><a class="pagination-related" href="/2026/03/10/CVE-2023-20073%E5%A4%8D%E7%8E%B0/" title="CVE-2023-20073"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-10</div><div class="info-item-2">CVE-2023-20073</div></div><div class="info-2"><div class="info-item-1">CVE-2023-20073复现ubuntu18复现的 漏洞介绍Cisco RV340，RV340W，RV345和 RV345P 四款型号的路由器中最新固件均存在一个未授权任意文件上传漏洞 ，攻击者可以在未授权的情况下将文件上传到 /tmp/upload 目录中，然后利用 upload.cgi 程序中存在的漏洞，最终造成存储型 XSS 攻击。 固件提取到思科官网下载img文件然后binwalk提取 1https://software.cisco.com/download/home/286287791/type/282465789/release/1.0.03.29  12345678910111213141516yy@yy-virtual-machine:~/桌面/1% binwalk -Me RV34X-v1.0.03.29-2022-10-17-13-45-34-PM.imgScan Time:     2026-03-10 21:20:49Target File:   /home/yy/桌面/1/RV34X-v1.0.03.29-2022-10-17-13-45-34-PM...</div></div></div></a><a class="pagination-related" href="/2026/04/19/CVE-2025-25343%E5%A4%8D%E7%8E%B0/" title="CVE-2025-25343复现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-19</div><div class="info-item-2">CVE-2025-25343复现</div></div><div class="info-2"><div class="info-item-1">CVE-2025-25343漏洞信息   CNVD-ID CNVD-2025-09690    公开日期 2025-05-13   危害级别 高 (AV:N&#x2F;AC:L&#x2F;Au:N&#x2F;C:C&#x2F;I:C&#x2F;A:C)   影响产品 Tenda AC6 15.03.05.16   CVE ID CVE-2025-25343   漏洞描述 Tenda AC6是中国腾达（Tenda）公司的一款无线路由器。  Tenda AC6存在缓冲区溢出漏洞，该漏洞源于formexeCommand函数未能正确验证输入数据的长度大小，攻击者可利用该漏洞在系统上执行任意代码或导致拒绝服务。   漏洞类型 通用型漏洞   参考链接 https://nvd.nist.gov/vuln/detail/CVE-2025-25343   漏洞解决方案 目前厂商已发布升级程序修复该安全问题，详情见厂商官网： https://www.tenda.com.cn/material/show/102681   厂商补丁 Tenda AC6缓冲区溢出漏洞的补丁   验证信息 (暂无验证信息...</div></div></div></a><a class="pagination-related" href="/2025/10/05/IOT%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86/" title="IOT前置知识"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-05</div><div class="info-item-2">IOT前置知识</div></div><div class="info-2"><div class="info-item-1">基础溢出：常见的就是shellcode和Rop技术 HTTP协议：http是一种超文本传输协议，是web上进行任意数据交换的基础，也是一种客户端-服务器协议。 它由请求和响应组成，三部分：请求行，消息报头，请求正文。 请求行：1Method Request-URI HTTP-Version CRLF   消息报头：包含各个字段，通常以key: value格式表示： 12Content-Length: 348Content-Type: application/x-www-form-urlencoded  请求正文：HTTP请求正文是请求消息中可选的部分，通常用于在 POST、PUT 或其他需要传递数据的请求中，携带客户端向服务器发送的数据。它是位于请求头之后的实际数据内容。可由多种数据组成，如表单、二进制、JSON等，如 12345678910POST /api/v1/user HTTP/1.1  # 请求行Host: api.example.com       # 消息报头（开始）Content-Type: application/jsonContent-Length: 55  ...</div></div></div></a><a class="pagination-related" href="/2026/02/09/DLink%E8%B7%AF%E7%94%B1%E5%99%A8RCE%E6%BC%8F%E6%B4%9E-CVE-2019-17621/" title="DLink路由器RCE漏洞 CVE-2019-17621"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-09</div><div class="info-item-2">DLink路由器RCE漏洞 CVE-2019-17621</div></div><div class="info-2"><div class="info-item-1">描述 D-Link DIR-859 Wi-Fi 路由器 1.05 和 1.06B01 Beta01 中的 UPnP 端点 URL &#x2F;gena.cgi 允许未经认证的远程攻击者以 root 身份执行系统命令，通过在连接本地网络时向 UPnP 服务发送专门设计的 HTTP SUBSCRIBE 请求。  通过ubuntu18版本复现 漏洞分析先手操作前面就不多说了，拿到zip文件解压一下然后binwalk -eM就拿到了文件 看一下保护，mips-32位架构 1234567891011 checksec cgibin[!] Could not populate PLT: future feature annotations is not defined (unicorn.py, line 5)[*] &#x27;/home/yy/桌面/_DIR822A1_FW103WWb03.bin.extracted/squashfs-root/htdocs/cgibin&#x27;    Arch:       mips-32-big    RELRO:      No RELRO   ...</div></div></div></a><a class="pagination-related" href="/2026/04/20/Tenda-AC6%E8%B7%AF%E7%94%B1%E5%99%A8CVE-2025-50263%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E/" title="Tenda AC6路由器CVE-2025-50263缓冲区溢出漏洞"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-20</div><div class="info-item-2">Tenda AC6路由器CVE-2025-50263缓冲区溢出漏洞</div></div><div class="info-2"><div class="info-item-1">CVE-2025-50263前言由于前两天搞了个tenda的路由器，刚好看到还同时存在的另一个缓冲区溢出漏洞，就一并分析了，qemu连接具体请看 https://hfddh666.github.io/2026/04/19/CVE-2025-25343%E5%A4%8D%E7%8E%B0/ 漏洞报告   CNVD-ID CNVD-2025-15719    公开日期 2025-07-15   危害级别 高 (AV:N&#x2F;AC:H&#x2F;Au:N&#x2F;C:C&#x2F;I:C&#x2F;A:C)   影响产品 Tenda AC6 15.03.05.16_multi   CVE ID CVE-2025-50263   漏洞描述 Tenda AC6是腾达推出的双频无线路由器。  Tenda AC6存在缓冲区溢出漏洞，该漏洞源于fromSetRouteStatic函数中list参数未能正确验证输入数据的长度大小，目前没有详细的漏洞细节提供。   漏洞类型 通用型漏洞   参考链接 https://github.com/faqiadegege/IoTVuln/blob/ma...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">hfddh666</div><div class="author-info-description">欢迎访问 hfddh666 的博客！</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">39</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" href="/about/"><i class="fab fa-github"></i><span>关于我</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content toc-div-class" style="display:none"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%82%B91"><span class="toc-number">2.0.1.</span> <span class="toc-text">漏洞点1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%82%B92"><span class="toc-number">2.0.2.</span> <span class="toc-text">漏洞点2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE"><span class="toc-number">2.0.3.</span> <span class="toc-text">漏洞参数设置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81"><span class="toc-number">3.</span> <span class="toc-text">漏洞验证</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#poc"><span class="toc-number">3.1.</span> <span class="toc-text">poc</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%BB%BA%E8%AE%AE"><span class="toc-number">4.</span> <span class="toc-text">修改建议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A2%98%E5%A4%96%E8%AF%9D"><span class="toc-number">5.</span> <span class="toc-text">题外话</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/14/Totolink-NR1800X%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="Totolink NR1800X漏洞复现">Totolink NR1800X漏洞复现</a><time datetime="2026-05-14T06:16:51.000Z" title="发表于 2026-05-14 14:16:51">2026-05-14</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/13/%E5%9F%BA%E4%BA%8Etenda-AC6%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/" title="基于tenda-AC6漏洞挖掘">基于tenda-AC6漏洞挖掘</a><time datetime="2026-05-13T11:50:16.000Z" title="发表于 2026-05-13 19:50:16">2026-05-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/04/29/TP-Link-SR20%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="TP-Link SR20命令执行漏洞复现">TP-Link SR20命令执行漏洞复现</a><time datetime="2026-04-29T13:29:47.000Z" title="发表于 2026-04-29 21:29:47">2026-04-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/04/25/%E5%9F%BA%E4%BA%8Etenda%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/" title="基于tenda路由器的缓冲区溢出漏洞总结">基于tenda路由器的缓冲区溢出漏洞总结</a><time datetime="2026-04-25T01:06:02.000Z" title="发表于 2026-04-25 09:06:02">2026-04-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/04/24/Tenda-AC15%E8%B7%AF%E7%94%B1%E5%99%A8CVE%EF%BC%9A%E5%9B%9B%E4%B8%AA%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E5%A4%8D%E7%8E%B0/" title="Tenda-AC15路由器CVE：四个缓冲区溢出漏洞分析复现">Tenda-AC15路由器CVE：四个缓冲区溢出漏洞分析复现</a><time datetime="2026-04-24T14:48:29.000Z" title="发表于 2026-04-24 22:48:29">2026-04-24</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By hfddh666</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script>
+  // 枫叶脚本（数量减少，更轻盈）
+  $(document).ready(function() {
+    var leafCount = 0;
+    var maxLeaf = 15;
+    var fallSpeed = 1.8;
+    
+    function createLeaf() {
+      if (leafCount >= maxLeaf) return;
+      var size = Math.random() * 15 + 10;
+      var colors = ['#e65100','#ff7043','#f57c00'];
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      
+      var leaf = $('<div class="maple-leaf"></div>').css({
+        top: -size + 'px',
+        left: Math.random() * $(window).width() + 'px',
+        width: size + 'px',
+        height: size + 'px'
+      });
+      leaf[0].style.setProperty('--leaf-color', color);
+      leaf.find('::before').css('background', color);
+      
+      $('body').append(leaf);
+      leafCount++;
+      
+      leaf.animate({
+        top: $(window).height() + size + 'px',
+        left: "+=" + (Math.random() * 150 - 75) + "px",
+        rotate: Math.random() * 720 + 'deg'
+      }, fallSpeed * 20000, 
+      function() {
+        $(this).remove();
+        leafCount--;
+      });
+    }
+    for (var i = 0; i < 8; i++) createLeaf();
+    setInterval(createLeaf, 800);
+  });
+</script>
+<script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
