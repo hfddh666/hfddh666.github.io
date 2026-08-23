@@ -1,0 +1,399 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>WAVLINK-NU516-V251208&amp;V240425漏洞分析 | hfddh666's Blog</title><meta name="author" content="hfddh666"><meta name="copyright" content="hfddh666"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="WAVLINK-NU516-V251208&amp;V240425漏洞分析固件模拟固件下载地址：  https:&#x2F;&#x2F;docs.wavlink.xyz&#x2F;Firmware&#x2F;?category&#x3D;USB+Printer+Server&amp;model&#x3D;all  然后binwalk后，查看busybox，架构是mips小端序32位，然后下在对应镜像 qemu启动 12345678sudo qemu-sys">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WAVLINK-NU516-V251208&amp;V240425漏洞分析">
+<meta property="og:url" content="https://hfddh666.github.io/2026/08/19/WAVLINK-NU516-V251208&V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="hfddh666&#39;s Blog">
+<meta property="og:description" content="WAVLINK-NU516-V251208&amp;V240425漏洞分析固件模拟固件下载地址：  https:&#x2F;&#x2F;docs.wavlink.xyz&#x2F;Firmware&#x2F;?category&#x3D;USB+Printer+Server&amp;model&#x3D;all  然后binwalk后，查看busybox，架构是mips小端序32位，然后下在对应镜像 qemu启动 12345678sudo qemu-sys">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hfddh666.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-08-19T05:43:44.000Z">
+<meta property="article:modified_time" content="2026-08-19T08:05:21.577Z">
+<meta property="article:author" content="hfddh666">
+<meta property="article:tag" content="IoT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hfddh666.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "WAVLINK-NU516-V251208&V240425漏洞分析",
+  "url": "https://hfddh666.github.io/2026/08/19/WAVLINK-NU516-V251208&V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/",
+  "image": "https://hfddh666.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-08-19T05:43:44.000Z",
+  "dateModified": "2026-08-19T08:05:21.577Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "hfddh666",
+      "url": "https://hfddh666.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://hfddh666.github.io/2026/08/19/WAVLINK-NU516-V251208&amp;V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'WAVLINK-NU516-V251208&V240425漏洞分析',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="preload" href="/image/top-bg.jpg" as="image"><style>
+  /* 🔥 页面背景：替换为你要的颜色（示例用浅灰蓝 #f5f7fa，可自行修改） */
+  body, html {
+    background: #f5f7fa !important; /* 你可替换成任意颜色值，比如 #f0f2f5、#eef1f5 等 */
+    color: #333 !important;
+  }
+  /* 页面容器：居中+留白 */
+  #content-inner {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  /* 文章卡片：保留纯白色 */
+  .recent-post-item {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 30px !important;
+    margin-bottom: 25px !important;
+    /* 保留左侧暖棕渐变点缀（可选，不喜欢可删除） */
+    border-left: 4px solid;
+    border-image: linear-gradient(to bottom, #e67e22, #d35400) 1 !important;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  /* 卡片hover效果 */
+  .recent-post-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+  }
+  /* 卡片右上角小点缀（可选，不喜欢可删除） */
+  .recent-post-item::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(45deg, #e67e22, #d35400);
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+  /* 文章标题：深色调 */
+  .post-title {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 12px !important;
+    padding-right: 20px;
+  }
+  /* 文章摘要：中灰色 */
+  .post-excerpt {
+    color: #555 !important;
+    line-height: 1.7 !important;
+    font-size: 15px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  /* 发布时间：暖灰色+小图标 */
+  .post-meta {
+    color: #777 !important;
+    font-size: 14px !important;
+    margin-top: 10px !important;
+  }
+  .post-meta:before {
+    content: "📅 ";
+    color: #e67e22;
+  }
+  /* 侧边栏：保留纯白色 */
+  .card-widget {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 25px !important;
+    margin-bottom: 20px !important;
+  }
+  /* 侧边栏标题：深色调 */
+  .aside-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f5f7fa !important; /* 和背景色呼应 */
+    margin-bottom: 15px !important;
+    color: #2c3e50 !important;
+  }
+  /* 标签/分类：浅橙底点缀 */
+  .tag-cloud-list a, .category-list a {
+    background: #fef6e9 !important;
+    color: #e67e22 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    margin: 0 5px 8px 0 !important;
+    display: inline-block !important;
+  }
+  /* 代码块：保留纯白色 */
+  figure.highlight {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    border: none !important;
+  }
+  .highlight code {
+    color: #2c3e50 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  /* 行内代码：保留纯白色 */
+  p code, li code {
+    background: #ffffff !important; /* 纯白背景 */
+    color: #e67e22 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  }
+  /* 顶部图加载优化 */
+  #page-header {
+    background-image: url(/image/top-bg.jpg) !important;
+    background-size: cover !important;
+    background-position: center !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .top-img {
+    background: url(/image/top-bg.jpg) center/cover !important;
+  }
+</style>
+<meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/image/top-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">hfddh666's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">WAVLINK-NU516-V251208&amp;V240425漏洞分析</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">WAVLINK-NU516-V251208&amp;V240425漏洞分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-19T05:43:44.000Z" title="发表于 2026-08-19 13:43:44">2026-08-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-19T08:05:21.577Z" title="更新于 2026-08-19 16:05:21">2026-08-19</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div id="post-outdate-notice" data="{&quot;limitDay&quot;:365,&quot;messagePrev&quot;:&quot;本文最后更新于&quot;,&quot;messageNext&quot;:&quot;天前，文中内容可能已过时。&quot;,&quot;postUpdate&quot;:&quot;2026-08-19 16:05:21&quot;}" hidden></div><h1 id="WAVLINK-NU516-V251208-V240425漏洞分析"><a href="#WAVLINK-NU516-V251208-V240425漏洞分析" class="headerlink" title="WAVLINK-NU516-V251208&amp;V240425漏洞分析"></a>WAVLINK-NU516-V251208&amp;V240425漏洞分析</h1><h2 id="固件模拟"><a href="#固件模拟" class="headerlink" title="固件模拟"></a>固件模拟</h2><p>固件下载地址：</p>
+<p> <a target="_blank" rel="noopener" href="https://docs.wavlink.xyz/Firmware/?category=USB+Printer+Server&model=all">https://docs.wavlink.xyz/Firmware/?category=USB+Printer+Server&amp;model=all</a> </p>
+<p>然后binwalk后，查看busybox，架构是mips小端序32位，然后下在对应镜像</p>
+<p>qemu启动</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo qemu-system-mipsel \</span><br><span class="line">        -M malta \</span><br><span class="line">        -cpu 74Kf \</span><br><span class="line">        -kernel ./vmlinux-<span class="number">3.2</span><span class="number">.0</span>-<span class="number">4</span>-4kc-malta \</span><br><span class="line">        -hda ./debian_squeeze_mipsel_standard.qcow2 \</span><br><span class="line">        -append <span class="string">&quot;root=/dev/sda1 console=ttyS0&quot;</span> \</span><br><span class="line">        -net nic -net tap,ifname=tap0,script=no,downscript=no \</span><br><span class="line">        -nographic</span><br></pre></td></tr></table></figure>
+
+<p>查找服务类型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -<span class="built_in">type</span> f -executable | grep -E <span class="string">&quot;lighttpd|boa|httpd|nginx|apache|uhttpd|thttpd|micro_httpd&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后设置本地网卡</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo tunctl -t tap0 -u `whoami`</span><br><span class="line">sudo ifconfig tap0 <span class="number">192.168</span><span class="number">.10</span><span class="number">.1</span>/<span class="number">24</span> up</span><br></pre></td></tr></table></figure>
+
+<p>然后虚拟机网卡设置</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig eth0 <span class="number">192.168</span><span class="number">.10</span><span class="number">.2</span> netmask <span class="number">255.255</span><span class="number">.255</span><span class="number">.0</span></span><br></pre></td></tr></table></figure>
+
+<p>然后互ping一下，能联通，接下来是上传固件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">🦈 hfddh666 ~/桌面/固件/WAVLINK-NU516-V251208&amp;V240425/_WAVLINK-NU516U1-A-WO-<span class="number">20251208</span>-BYFM (<span class="number">1</span>).<span class="built_in">bin</span>.extracted <span class="number">13</span>:<span class="number">51</span></span><br><span class="line">$ tar -czf squashfs-root.tar.gz squashfs-root </span><br><span class="line">🦈 hfddh666 ~/桌面/固件/WAVLINK-NU516-V251208&amp;V240425/_WAVLINK-NU516U1-A-WO-<span class="number">20251208</span>-BYFM (<span class="number">1</span>).<span class="built_in">bin</span>.extracted <span class="number">13</span>:<span class="number">52</span></span><br><span class="line">$ scp squashfs-root.tar.gz root@<span class="number">192.168</span><span class="number">.10</span><span class="number">.2</span>:/root/</span><br><span class="line">root@<span class="number">192.168</span><span class="number">.10</span><span class="number">.2</span><span class="string">&#x27;s password: </span></span><br><span class="line"><span class="string">squashfs-root.tar.gz                          100% 8081KB  18.3MB/s   00:00   </span></span><br></pre></td></tr></table></figure>
+
+<p>然后qemu端解包,挂载环境</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tar -xzf squashfs-root.tar.gz</span><br><span class="line">cd squashfs-root</span><br><span class="line">mount --bind /proc/ proc/</span><br><span class="line">mount --bind /sys/ sys/</span><br><span class="line">mount --bind /dev/ dev/</span><br></pre></td></tr></table></figure>
+
+<p>然后是启动</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf</span><br></pre></td></tr></table></figure>
+
+<p>这里要执行，否则只能qemu端访问</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/#server.bind                 = &quot;localhost&quot;/server.bind            </span></span><br><span class="line"><span class="string">     = &quot;0.0.0.0&quot;/&#x27;</span> /etc/lighttpd/lighttpd.conf</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>lighttpd.conf</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">server.modules              = (</span><br><span class="line"><span class="comment">#                                &quot;mod_alias&quot;,</span></span><br><span class="line"><span class="comment">#                                &quot;mod_access&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_ssi&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_compress&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_rewrite&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_redirect&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_cml&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_trigger_b4_dl&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_auth&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_status&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_setenv&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_fastcgi&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_proxy&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_simple_vhost&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_evhost&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_userdir&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_cgi&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_webdav&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_usertrack&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_expire&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_secdownload&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_rrdtool&quot;,</span></span><br><span class="line"><span class="comment">#                               &quot;mod_accesslog&quot;,</span></span><br><span class="line">)</span><br><span class="line">server.document-root        = <span class="string">&quot;/etc/lighttpd/www&quot;</span></span><br><span class="line">server.upload-dirs          = ( <span class="string">&quot;/tmp&quot;</span> )</span><br><span class="line">server.errorlog             = <span class="string">&quot;/var/log/lighttpd/error.log&quot;</span></span><br><span class="line">server.pid-file             = <span class="string">&quot;/var/run/lighttpd.pid&quot;</span></span><br><span class="line"><span class="comment">#server.username             = &quot;http&quot;</span></span><br><span class="line"><span class="comment">#server.groupname            = &quot;www-data&quot;</span></span><br><span class="line"></span><br><span class="line">index-file.names            = ( <span class="string">&quot;index.php&quot;</span>, <span class="string">&quot;index.html&quot;</span>,</span><br><span class="line">                                <span class="string">&quot;index.html&quot;</span>, <span class="string">&quot;default.html&quot;</span>,</span><br><span class="line">								<span class="string">&quot;login.shtml&quot;</span>,</span><br><span class="line">                              )</span><br><span class="line">							  </span><br><span class="line"><span class="comment">## set the event-handler (read the performance section in the manual)</span></span><br><span class="line"><span class="comment">#server.event-handler = &quot;poll&quot; </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># mimetype mapping</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">static-file.exclude-extensions = ( <span class="string">&quot;.php&quot;</span>, <span class="string">&quot;.pl&quot;</span>, <span class="string">&quot;.fcgi&quot;</span>, <span class="string">&quot;.cgi&quot;</span> )</span><br><span class="line"></span><br><span class="line"><span class="comment">### Options that are useful but not always necessary:</span></span><br><span class="line"><span class="comment">#server.chroot               = &quot;/&quot;</span></span><br><span class="line">server.port                 = <span class="number">80</span></span><br><span class="line"><span class="comment">#server.bind                 = &quot;localhost&quot;</span></span><br><span class="line">server.tag                  = <span class="string">&quot;lighttpd&quot;</span></span><br><span class="line"><span class="comment">#server.errorlog-use-syslog  = &quot;enable&quot;</span></span><br><span class="line"><span class="comment">#server.network-backend      = &quot;writev&quot;</span></span><br><span class="line"><span class="comment">#server.max-request-size    = 16064</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### Use IPv6 if available</span></span><br><span class="line"><span class="comment">#include_shell &quot;/usr/share/lighttpd/use-ipv6.pl&quot;</span></span><br><span class="line">server.use-ipv6 = <span class="string">&quot;enable&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#dir-listing.encoding        = &quot;utf-8&quot;</span></span><br><span class="line"><span class="comment">#server.dir-listing          = &quot;enable&quot;</span></span><br><span class="line"></span><br><span class="line">include <span class="string">&quot;/etc/lighttpd/mime.conf&quot;</span></span><br><span class="line">include <span class="string">&quot;/etc/lighttpd/conf.d/*.conf&quot;</span></span><br><span class="line"></span><br><span class="line">$SERVER[<span class="string">&quot;socket&quot;</span>] == <span class="string">&quot;:443&quot;</span> &#123;</span><br><span class="line">	ssl.engine		= <span class="string">&quot;enable&quot;</span></span><br><span class="line">	ssl.pemfile		= <span class="string">&quot;/etc/lighttpd/ssl/Meshlink.pem&quot;</span></span><br><span class="line">	server.document-root	= <span class="string">&quot;/etc/lighttpd/www&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">setenv.add-response-header = ( <span class="string">&quot;Pragma&quot;</span> =&gt; <span class="string">&quot;no-cache&quot;</span> )</span><br><span class="line">setenv.add-response-header += ( <span class="string">&quot;cache-control&quot;</span> =&gt; <span class="string">&quot;no-cache,no-store,must-revalidate&quot;</span> )</span><br><span class="line">setenv.add-response-header += ( <span class="string">&quot;Access-Control-Allow-Origin&quot;</span> =&gt; <span class="string">&quot;*&quot;</span> )</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>报错了，因为 绝大多数路由器和 IoT 固件中，为了防止频繁读写损坏 Flash 闪存芯片，<code>/var</code> 通常被做成了一个<strong>软链接（符号链接）</strong>，指向 <code>/tmp</code>。而在真实的设备启动时，<code>/tmp</code> 会被挂载为一个存在于内存中的 <code>tmpfs</code>（虚拟内存文件系统）。 binwalk会导致其成为死链</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="comment"># /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf</span></span><br><span class="line"><span class="number">2026</span>-08-<span class="number">19</span> 06:<span class="number">18</span>:<span class="number">17</span>: (server.c<span class="number">.925</span>) opening pid-file failed: /var/run/lighttpd.pid No such file <span class="keyword">or</span> directory </span><br><span class="line">/ <span class="comment"># </span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>所以重新创建就好了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">rm -rf /var</span><br><span class="line">rm -rf /tmp</span><br><span class="line">mkdir -p /var/run</span><br><span class="line">mkdir -p /var/log/lighttpd</span><br><span class="line">mkdir -p /tmp/run</span><br><span class="line">mkdir -p /tmp/log/lighttpd</span><br><span class="line">/usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>也是启动成功了,但是br0网卡我的vmlinus打不开，因为 debian 官方原版 mipsel malta 内核（vmlinux‑3.2.0‑4‑4kc‑malta）没有打开 CONFIG_DUMMY，所以不能创建 dummy 类型 br0 ，所以登陆后返回error，所以无法验证漏洞，遂失败，但文章都开始写了，就简单的分析一下思路</p>
+<img src="/image/1787120674364.png">
+
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>查找cgi文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">🦈 hfddh666 ~/桌面/固件/WAVLINK-NU516-V251208&amp;V240425/_WAVLINK-NU516U1-A-WO-<span class="number">20251208</span>-BYFM (<span class="number">1</span>).<span class="built_in">bin</span>.extracted/squashfs-root <span class="number">14</span>:<span class="number">26</span></span><br><span class="line">$ find . -name <span class="string">&quot;*cgi&quot;</span></span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/nightled.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/staticlist.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/nas.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/ddns.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/login.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/upload.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/upload_settings.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/adm.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/firewall.cgi</span><br><span class="line">./etc/lighttpd/www/cgi-<span class="built_in">bin</span>/ExportAllSettings.cgi</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="CVE-2026-2615"><a href="#CVE-2026-2615" class="headerlink" title="CVE-2026-2615"></a>CVE-2026-2615</h3><p><strong>Wavlink NU516U1 (V251208) 的”firewall.cgi”组件的”singlePortForwardDelete”功能的函数中通过”del_flag”参数存在远程命令执行漏洞</strong> </p>
+<p>firewall.cgi固件是通过ftext函数进行功能匹配</p>
+<img src="/image/1787121259076.png">
+
+
+
+<p>然后就进入<code>sub_4016D0</code>函数,该函数是读取参数del_flag的参数，然后<code>sub_405B2C</code>函数是一份黑名单，过滤命令符的,然后是进行拼接，然后进入<code>sub_403734</code></p>
+<img src="/image/1787121971500.png">
+
+<img src="/image/1787122045963.png">
+
+<p><code>sub_403734</code>,<code>1&gt;/dev/null 2&gt;&amp;1</code>的意思是丢弃输出</p>
+<img src="/image/1787122097438.png">
+
+
+
+<h3 id="CVE-2026-3704"><a href="#CVE-2026-3704" class="headerlink" title="CVE-2026-3704"></a>CVE-2026-3704</h3><p>漏洞位置在DMZ功能，执行<code>sub_4017F0</code>函数</p>
+<img src="/image/1787126197211.png">
+
+<p><code>sub_4017F0</code>:跟上一个思路一样</p>
+<img src="/image/1787126365225.png">
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这玩意总的来说洞挺多的，尤其是cgi的数量也很多，认真分析一下还是可以不少成果的，就不一一介绍了</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io">hfddh666</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io/2026/08/19/WAVLINK-NU516-V251208&amp;V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/">https://hfddh666.github.io/2026/08/19/WAVLINK-NU516-V251208&amp;V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://hfddh666.github.io" target="_blank">hfddh666's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/IoT/">IoT</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="XiaomiBE10000 Pro固件模拟及漏洞复现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">XiaomiBE10000 Pro固件模拟及漏洞复现</div></div><div class="info-2"><div class="info-item-1">XiaomiBE10000 Pro固件模拟及漏洞复现（1.0.70）提取固件 固件下载 https://miuirom.org/load?o=xiaomi-router-be10000-pro&amp;v=1.0.70&amp;l=en&amp;t=router  首先是binwalk分析一下，发下有个UBI镜像位于0x2f0的位置   查看一下固件头，发现有个HDR1，这个就是小米的固件头，还有一些版本信息之类的 1xxd miwifi_rp04_firmware_85be4_1.0.70.bin | head -20 #-20是前20行，xxd是将二进制转化为ascii码    然后binwalk解压，发现有两个文件，第二个点到底是空的，那么我们着重分析第一个   发现是个完整的ubi镜像   UBI镜像是由等大的peb组成，peb开头都是UBI#，所以我们可以知道peb的大小，所以每个大小是128kb，peb大小是用来当binwalk提前失败了来自己手动提取 1strings -t x 2F0.ubi | grep &quot;UBI#&quot; | head -5 #x...</div></div></div></a><a class="pagination-related" href="/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/" title="基于tenda_ac15设备的自动化漏挖测试"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">基于tenda_ac15设备的自动化漏挖测试</div></div><div class="info-2"><div class="info-item-1">基于tenda_ac15设备的自动化漏挖测试前言本文是基于qiling框架启动的运行环境，项目地址： https://github.com/qilingframework/qiling tenda_ac15设备的httpd程序是通过访问特定url从而执行对应的函数 项目网上的这个iot fuzz测试是基于先生成一个快照，这个快照是处理完当前指定url函数后返回结束前的快照，然后通过qiling的语法进行afl++测试，像是hook之类的 READ.md这个就是介绍执行顺序嘛 12345678#### Learn how to build fuzzer from 1 day- Target AC15- Install Aflplusplus- run ./saver_tendaac15_httpd.py- run ./addressNat_overflow.sh to crash to generate snapshot.bin- start fuzzing with fuzz_tendaac15_httpd.sh  saver_tendaac15_httpd.py这个东西比较重要...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">hfddh666</div><div class="author-info-description">欢迎访问 hfddh666 的博客！</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" href="/about/"><i class="fab fa-github"></i><span>关于我</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#WAVLINK-NU516-V251208-V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">WAVLINK-NU516-V251208&amp;V240425漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F"><span class="toc-number">1.1.</span> <span class="toc-text">固件模拟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">1.2.</span> <span class="toc-text">漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2026-2615"><span class="toc-number">1.2.1.</span> <span class="toc-text">CVE-2026-2615</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2026-3704"><span class="toc-number">1.2.2.</span> <span class="toc-text">CVE-2026-3704</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.3.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="XiaomiBE10000 Pro固件模拟及漏洞复现">XiaomiBE10000 Pro固件模拟及漏洞复现</a><time datetime="2026-08-22T06:04:25.000Z" title="发表于 2026-08-22 14:04:25">2026-08-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/19/WAVLINK-NU516-V251208&amp;V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="WAVLINK-NU516-V251208&amp;V240425漏洞分析">WAVLINK-NU516-V251208&amp;V240425漏洞分析</a><time datetime="2026-08-19T05:43:44.000Z" title="发表于 2026-08-19 13:43:44">2026-08-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/" title="基于tenda_ac15设备的自动化漏挖测试">基于tenda_ac15设备的自动化漏挖测试</a><time datetime="2026-08-16T15:53:13.000Z" title="发表于 2026-08-16 23:53:13">2026-08-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/30/Qiling-%E6%A1%86%E6%9E%B6%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8E-QilingLab-%E8%AF%A6%E8%A7%A3%E5%88%B0-Qiling-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析">Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析</a><time datetime="2026-05-30T07:06:50.000Z" title="发表于 2026-05-30 15:06:50">2026-05-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/Vivotek-Remote-Stack-Overflow/" title="Vivotek Remote Stack Overflow">Vivotek Remote Stack Overflow</a><time datetime="2026-05-26T12:24:07.000Z" title="发表于 2026-05-26 20:24:07">2026-05-26</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By hfddh666</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script>
+  // 枫叶脚本（数量减少，更轻盈）
+  $(document).ready(function() {
+    var leafCount = 0;
+    var maxLeaf = 15;
+    var fallSpeed = 1.8;
+    
+    function createLeaf() {
+      if (leafCount >= maxLeaf) return;
+      var size = Math.random() * 15 + 10;
+      var colors = ['#e65100','#ff7043','#f57c00'];
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      
+      var leaf = $('<div class="maple-leaf"></div>').css({
+        top: -size + 'px',
+        left: Math.random() * $(window).width() + 'px',
+        width: size + 'px',
+        height: size + 'px'
+      });
+      leaf[0].style.setProperty('--leaf-color', color);
+      leaf.find('::before').css('background', color);
+      
+      $('body').append(leaf);
+      leafCount++;
+      
+      leaf.animate({
+        top: $(window).height() + size + 'px',
+        left: "+=" + (Math.random() * 150 - 75) + "px",
+        rotate: Math.random() * 720 + 'deg'
+      }, fallSpeed * 20000, 
+      function() {
+        $(this).remove();
+        leafCount--;
+      });
+    }
+    for (var i = 0; i < 8; i++) createLeaf();
+    setInterval(createLeaf, 800);
+  });
+</script>
+<script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

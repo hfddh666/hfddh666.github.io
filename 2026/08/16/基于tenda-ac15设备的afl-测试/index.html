@@ -1,0 +1,376 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>基于tenda_ac15设备的自动化漏挖测试 | hfddh666's Blog</title><meta name="author" content="hfddh666"><meta name="copyright" content="hfddh666"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="基于tenda_ac15设备的自动化漏挖测试前言本文是基于qiling框架启动的运行环境，项目地址： https:&#x2F;&#x2F;github.com&#x2F;qilingframework&#x2F;qiling tenda_ac15设备的httpd程序是通过访问特定url从而执行对应的函数 项目网上的这个iot fuzz测试是基于先生成一个快照，这个快照是处理完当前指定url函数后返回结束前的快照，然后通过qiling的语">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于tenda_ac15设备的自动化漏挖测试">
+<meta property="og:url" content="https://hfddh666.github.io/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/index.html">
+<meta property="og:site_name" content="hfddh666&#39;s Blog">
+<meta property="og:description" content="基于tenda_ac15设备的自动化漏挖测试前言本文是基于qiling框架启动的运行环境，项目地址： https:&#x2F;&#x2F;github.com&#x2F;qilingframework&#x2F;qiling tenda_ac15设备的httpd程序是通过访问特定url从而执行对应的函数 项目网上的这个iot fuzz测试是基于先生成一个快照，这个快照是处理完当前指定url函数后返回结束前的快照，然后通过qiling的语">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hfddh666.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-08-16T15:53:13.000Z">
+<meta property="article:modified_time" content="2026-08-17T12:29:06.439Z">
+<meta property="article:author" content="hfddh666">
+<meta property="article:tag" content="安全自动化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hfddh666.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "基于tenda_ac15设备的自动化漏挖测试",
+  "url": "https://hfddh666.github.io/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/",
+  "image": "https://hfddh666.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-08-16T15:53:13.000Z",
+  "dateModified": "2026-08-17T12:29:06.439Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "hfddh666",
+      "url": "https://hfddh666.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://hfddh666.github.io/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '基于tenda_ac15设备的自动化漏挖测试',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="preload" href="/image/top-bg.jpg" as="image"><style>
+  /* 🔥 页面背景：替换为你要的颜色（示例用浅灰蓝 #f5f7fa，可自行修改） */
+  body, html {
+    background: #f5f7fa !important; /* 你可替换成任意颜色值，比如 #f0f2f5、#eef1f5 等 */
+    color: #333 !important;
+  }
+  /* 页面容器：居中+留白 */
+  #content-inner {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  /* 文章卡片：保留纯白色 */
+  .recent-post-item {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 30px !important;
+    margin-bottom: 25px !important;
+    /* 保留左侧暖棕渐变点缀（可选，不喜欢可删除） */
+    border-left: 4px solid;
+    border-image: linear-gradient(to bottom, #e67e22, #d35400) 1 !important;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  /* 卡片hover效果 */
+  .recent-post-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+  }
+  /* 卡片右上角小点缀（可选，不喜欢可删除） */
+  .recent-post-item::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(45deg, #e67e22, #d35400);
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+  /* 文章标题：深色调 */
+  .post-title {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 12px !important;
+    padding-right: 20px;
+  }
+  /* 文章摘要：中灰色 */
+  .post-excerpt {
+    color: #555 !important;
+    line-height: 1.7 !important;
+    font-size: 15px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  /* 发布时间：暖灰色+小图标 */
+  .post-meta {
+    color: #777 !important;
+    font-size: 14px !important;
+    margin-top: 10px !important;
+  }
+  .post-meta:before {
+    content: "📅 ";
+    color: #e67e22;
+  }
+  /* 侧边栏：保留纯白色 */
+  .card-widget {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 16px !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04) !important;
+    padding: 25px !important;
+    margin-bottom: 20px !important;
+  }
+  /* 侧边栏标题：深色调 */
+  .aside-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f5f7fa !important; /* 和背景色呼应 */
+    margin-bottom: 15px !important;
+    color: #2c3e50 !important;
+  }
+  /* 标签/分类：浅橙底点缀 */
+  .tag-cloud-list a, .category-list a {
+    background: #fef6e9 !important;
+    color: #e67e22 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    margin: 0 5px 8px 0 !important;
+    display: inline-block !important;
+  }
+  /* 代码块：保留纯白色 */
+  figure.highlight {
+    background: #ffffff !important; /* 纯白背景 */
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    border: none !important;
+  }
+  .highlight code {
+    color: #2c3e50 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  /* 行内代码：保留纯白色 */
+  p code, li code {
+    background: #ffffff !important; /* 纯白背景 */
+    color: #e67e22 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  }
+  /* 顶部图加载优化 */
+  #page-header {
+    background-image: url(/image/top-bg.jpg) !important;
+    background-size: cover !important;
+    background-position: center !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .top-img {
+    background: url(/image/top-bg.jpg) center/cover !important;
+  }
+</style>
+<meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/image/top-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">hfddh666's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">基于tenda_ac15设备的自动化漏挖测试</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">基于tenda_ac15设备的自动化漏挖测试</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-16T15:53:13.000Z" title="发表于 2026-08-16 23:53:13">2026-08-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-17T12:29:06.439Z" title="更新于 2026-08-17 20:29:06">2026-08-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div id="post-outdate-notice" data="{&quot;limitDay&quot;:365,&quot;messagePrev&quot;:&quot;本文最后更新于&quot;,&quot;messageNext&quot;:&quot;天前，文中内容可能已过时。&quot;,&quot;postUpdate&quot;:&quot;2026-08-17 20:29:06&quot;}" hidden></div><h1 id="基于tenda-ac15设备的自动化漏挖测试"><a href="#基于tenda-ac15设备的自动化漏挖测试" class="headerlink" title="基于tenda_ac15设备的自动化漏挖测试"></a>基于tenda_ac15设备的自动化漏挖测试</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文是基于qiling框架启动的运行环境，项目地址：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/qilingframework/qiling">https://github.com/qilingframework/qiling</a></p>
+<p>tenda_ac15设备的httpd程序是通过访问特定url从而执行对应的函数</p>
+<h2 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h2><p>网上的这个iot fuzz测试是基于先生成一个快照，这个快照是处理完当前指定url函数后返回结束前的快照，然后通过qiling的语法进行afl++测试，像是hook之类的</p>
+<h3 id="READ-md"><a href="#READ-md" class="headerlink" title="READ.md"></a>READ.md</h3><p>这个就是介绍执行顺序嘛</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#### Learn how to build fuzzer from 1 day</span></span><br><span class="line"></span><br><span class="line">- Target AC15</span><br><span class="line">- Install Aflplusplus</span><br><span class="line">- run ./saver_tendaac15_httpd.py</span><br><span class="line">- run ./addressNat_overflow.sh to crash to generate snapshot.<span class="built_in">bin</span></span><br><span class="line">- start fuzzing <span class="keyword">with</span> fuzz_tendaac15_httpd.sh</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="saver-tendaac15-httpd-py"><a href="#saver-tendaac15-httpd-py" class="headerlink" title="saver_tendaac15_httpd.py"></a>saver_tendaac15_httpd.py</h3><p>这个东西比较重要，就是生成快照的代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ctypes, os, pickle, socket, sys, threading</span><br><span class="line">sys.path.append(<span class="string">&quot;..&quot;</span>)</span><br><span class="line"><span class="keyword">from</span> qiling <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> qiling.const <span class="keyword">import</span> QL_VERBOSE</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">nvram_listener</span>():</span><br><span class="line">    server_address = <span class="string">&#x27;rootfs/var/cfm_socket&#x27;</span></span><br><span class="line">    data = <span class="string">&quot;&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:  </span><br><span class="line">        os.unlink(server_address)  </span><br><span class="line">    <span class="keyword">except</span> OSError:  </span><br><span class="line">        <span class="keyword">if</span> os.path.exists(server_address):  </span><br><span class="line">            <span class="keyword">raise</span>  </span><br><span class="line"></span><br><span class="line">    <span class="comment"># Create UDS socket  </span></span><br><span class="line">    sock = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)  </span><br><span class="line">    sock.bind(server_address)  </span><br><span class="line">    sock.listen(<span class="number">1</span>)  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:  </span><br><span class="line">        connection, client_address = sock.accept()  </span><br><span class="line">        <span class="keyword">try</span>:  </span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:  </span><br><span class="line">                data += <span class="built_in">str</span>(connection.recv(<span class="number">1024</span>))</span><br><span class="line">        </span><br><span class="line">                <span class="keyword">if</span> <span class="string">&quot;lan.webiplansslen&quot;</span> <span class="keyword">in</span> data:  </span><br><span class="line">                    connection.send(<span class="string">&#x27;192.168.170.169&#x27;</span>.encode())  </span><br><span class="line">                <span class="keyword">else</span>: </span><br><span class="line">                    <span class="keyword">break</span>  </span><br><span class="line">                data = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">finally</span>:  </span><br><span class="line">                connection.close() </span><br><span class="line"></span><br><span class="line"><span class="comment"># https://github.com/qilingframework/qiling/issues/1350</span></span><br><span class="line"><span class="comment"># On debian 11, somehow it has this bug and this is the recomended fix by @Riv4ille</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hook_check_network</span>(<span class="params">ql:Qiling</span>):</span><br><span class="line">    ql.arch.regs.r0 = <span class="number">1</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">save_context</span>(<span class="params">ql, *args, **kw</span>):</span><br><span class="line">    ql.save(cpu_context=<span class="literal">False</span>, snapshot=<span class="string">&quot;snapshot.bin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">patcher</span>(<span class="params">ql</span>):</span><br><span class="line">    br0_addr = ql.mem.search(<span class="string">&quot;br0&quot;</span>.encode() + <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">    <span class="keyword">for</span> addr <span class="keyword">in</span> br0_addr:</span><br><span class="line">        ql.mem.write(addr, <span class="string">b&#x27;lo\x00&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">check_pc</span>(<span class="params">ql</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">50</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Hit fuzz point, stop at PC = 0x%x&quot;</span> % ql.arch.regs.arch_pc)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">50</span>)</span><br><span class="line">    ql.emu_stop()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_sandbox</span>(<span class="params">path, rootfs</span>):</span><br><span class="line">    ql = Qiling(path, rootfs, verbose=QL_VERBOSE.DEBUG)</span><br><span class="line">    <span class="comment"># uncomment if u need it</span></span><br><span class="line">    <span class="comment">#ql.os.set_api(&#x27;check_network&#x27;,hook_check_network)</span></span><br><span class="line">    ql.add_fs_mapper(<span class="string">&quot;/dev/urandom&quot;</span>,<span class="string">&quot;/dev/urandom&quot;</span>)</span><br><span class="line">    ql.hook_address(save_context, <span class="number">0x10930</span>)</span><br><span class="line">    ql.hook_address(patcher, ql.loader.elf_entry)</span><br><span class="line">    ql.hook_address(check_pc, <span class="number">0x7a0cc</span>)</span><br><span class="line">    ql.run()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    nvram_listener_therad =  threading.Thread(target=nvram_listener, daemon=<span class="literal">True</span>)</span><br><span class="line">    nvram_listener_therad.start()</span><br><span class="line">    my_sandbox([<span class="string">&quot;rootfs/bin/httpd&quot;</span>], <span class="string">&quot;rootfs&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">nvram_listener</span>():</span><br><span class="line">    server_address = <span class="string">&#x27;rootfs/var/cfm_socket&#x27;</span></span><br><span class="line">    data = <span class="string">&quot;&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:  </span><br><span class="line">        os.unlink(server_address)  </span><br><span class="line">    <span class="keyword">except</span> OSError:  </span><br><span class="line">        <span class="keyword">if</span> os.path.exists(server_address):  </span><br><span class="line">            <span class="keyword">raise</span>  </span><br><span class="line"></span><br><span class="line">    <span class="comment"># Create UDS socket  </span></span><br><span class="line">    sock = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)  </span><br><span class="line">    sock.bind(server_address)  </span><br><span class="line">    sock.listen(<span class="number">1</span>)  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:  </span><br><span class="line">        connection, client_address = sock.accept()  </span><br><span class="line">        <span class="keyword">try</span>:  </span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:  </span><br><span class="line">                data += <span class="built_in">str</span>(connection.recv(<span class="number">1024</span>))</span><br><span class="line">        </span><br><span class="line">                <span class="keyword">if</span> <span class="string">&quot;lan.webiplansslen&quot;</span> <span class="keyword">in</span> data:  </span><br><span class="line">                    connection.send(<span class="string">&#x27;192.168.170.169&#x27;</span>.encode())  </span><br><span class="line">                <span class="keyword">else</span>: </span><br><span class="line">                    <span class="keyword">break</span>  </span><br><span class="line">                data = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">finally</span>:  </span><br><span class="line">                connection.close() </span><br><span class="line">                </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    nvram_listener_therad =  threading.Thread(target=nvram_listener, daemon=<span class="literal">True</span>) <span class="comment">#这个是创建一个线程，线程执行nvram_listener函数</span></span><br><span class="line">    nvram_listener_therad.start() <span class="comment">#启动线程</span></span><br></pre></td></tr></table></figure>
+
+<p>首先是这个部分， <strong>大多数路由器固件都需要NVRAM服务</strong>，而Qiling本身不提供这个功能，所以必须自己模拟一个后台服务。 这个部分都是通用的，需要改的只有while循环部分。</p>
+<p>而tendaac15设备在启动httpd程序时会卡在welcome。。。。。。的一个部位,进行gdb调试发现是卡在下面这个位置,这个位置是获取当前程序的ip地址，如果没有的话就启动不了，所以我们这里给他发送一个ip，就可以正常启动了，但是这个也有个另外的方法，直接hook掉他哈哈哈</p>
+<img src="/image/1786897359856.png">
+
+<p> <code>ql.add_fs_mapper(&quot;/dev/urandom&quot;,&quot;/dev/urandom&quot;)</code> 的作用是：<strong>将 Qiling 模拟环境中的 <code>/dev/urandom</code> 路径，直接映射到宿主机（你的电脑）上的 <code>/dev/urandom</code> 文件。</strong> </p>
+<p>因为真实的路由器需要读取&#x2F;dev&#x2F;urandom获取到需要的随机值，如果读取不到程序就会崩溃</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_context</span>(<span class="params">ql, *args, **kw</span>):</span><br><span class="line">    ql.save(cpu_context=<span class="literal">False</span>, snapshot=<span class="string">&quot;snapshot.bin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">patcher</span>(<span class="params">ql</span>):</span><br><span class="line">    br0_addr = ql.mem.search(<span class="string">&quot;br0&quot;</span>.encode() + <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">    <span class="keyword">for</span> addr <span class="keyword">in</span> br0_addr:</span><br><span class="line">        ql.mem.write(addr, <span class="string">b&#x27;lo\x00&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">check_pc</span>(<span class="params">ql</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">50</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Hit fuzz point, stop at PC = 0x%x&quot;</span> % ql.arch.regs.arch_pc)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">50</span>)</span><br><span class="line">    ql.emu_stop()</span><br><span class="line"></span><br><span class="line">ql.hook_address(save_context, <span class="number">0x10930</span>)</span><br><span class="line">ql.hook_address(patcher, ql.loader.elf_entry)	<span class="comment">#这个是因为httpd程序需要br0网卡来支撑，这个我们给他换成lo网卡，就可以了，也可以直接hook掉</span></span><br><span class="line">ql.hook_address(check_pc, <span class="number">0x7a0cc</span>)</span><br></pre></td></tr></table></figure>
+
+<p>程序的执行路径</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">POST /goform/addressNat</span><br><span class="line">  │</span><br><span class="line">  ▼</span><br><span class="line">fromAddressNat (<span class="number">0x79f64</span>)</span><br><span class="line">  │  处理参数，sprintf 把 <span class="string">&quot;CCCCAAAA&quot;</span> 写入栈 v6</span><br><span class="line">  │</span><br><span class="line">  ▼</span><br><span class="line"><span class="number">0x7a0c4</span>: BL sub_2BE4C          ← 发送 <span class="number">302</span> 重定向</span><br><span class="line">  │</span><br><span class="line">  ▼</span><br><span class="line">sub_2BE4C (<span class="number">0x2be4c</span>)</span><br><span class="line">  │</span><br><span class="line">  ├─► sub_2BBE0 (<span class="number">0x2bbe0</span>)      ← 构造并发送 HTTP 响应头</span><br><span class="line">  │     ├─ sub_2D530(<span class="number">0</span>)        ← 取 Date 字符串（动态分配）</span><br><span class="line">  │     ├─ sub_2C40C           ← 发送 <span class="string">&quot;Date: xxx&quot;</span></span><br><span class="line">  │     └─ <span class="number">0x2bcec</span>: addressNat(v12)  ← 即 sub_108B8，释放 Date 字符串</span><br><span class="line">  │           └─ <span class="number">0x1092c</span>: free(ptr)</span><br><span class="line">  │                 └─ <span class="number">0x10930</span>  ★ save_context 在这里保存快照</span><br><span class="line">  │</span><br><span class="line">  ├─► sub_10988(v6) → sub_108B8(v6)   ← 释放 HTML body，也可能经过 <span class="number">0x10930</span></span><br><span class="line">  └─► sub_10988(v5) → sub_108B8(v5)   ← 释放 Location URL，也可能经过 <span class="number">0x10930</span></span><br><span class="line">  │</span><br><span class="line">  ▼</span><br><span class="line">返回 fromAddressNat</span><br><span class="line">  │</span><br><span class="line">  ▼</span><br><span class="line"><span class="number">0x7a0cc</span>: POP &#123;R4,R11,PC&#125;       ← check_pc 钩在这里，停止模拟</span><br></pre></td></tr></table></figure>
+
+<h3 id="addressNat-overflow-sh"><a href="#addressNat-overflow-sh" class="headerlink" title="addressNat_overflow.sh"></a>addressNat_overflow.sh</h3><p>这个就是要在执行上面的代码后发送，是的函数能够成功进入该url执行对应函数，然后执行完也会生成一个快照，然后我们就可以对其进行操作了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> requests          </span><br><span class="line">            </span><br><span class="line">url = <span class="string">&quot;http://localhost:8080/goform/addressNat&quot;</span></span><br><span class="line">cookie = &#123;<span class="string">&quot;password&quot;</span>: <span class="string">&quot;12345&quot;</span>&#125;</span><br><span class="line">data = &#123;<span class="string">&quot;page&quot;</span>: <span class="string">&quot;CCCCAAAA&quot;</span>, <span class="string">&quot;entrys&quot;</span>: <span class="string">&quot;sync&quot;</span>&#125;</span><br><span class="line">response = requests.post(url, cookies=cookie, data=data, timeout=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="verify-py"><a href="#verify-py" class="headerlink" title="verify.py"></a>verify.py</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sys.path.append(<span class="string">&#x27;../../&#x27;</span>)</span><br><span class="line"><span class="keyword">from</span> qiling <span class="keyword">import</span> Qiling</span><br><span class="line"><span class="keyword">from</span> qiling.const <span class="keyword">import</span> QL_VERBOSE</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">verify_vuln</span>(<span class="params">payload_len=<span class="number">2000</span></span>):</span><br><span class="line">    ql = Qiling([<span class="string">&#x27;rootfs/bin/httpd&#x27;</span>], <span class="string">&#x27;rootfs&#x27;</span>, verbose=QL_VERBOSE.OFF)</span><br><span class="line">    ql.restore(snapshot=<span class="string">&#x27;snapshot.bin&#x27;</span>) <span class="comment">#这个就是从快照开始</span></span><br><span class="line">    addr = ql.mem.search(<span class="string">b&#x27;CCCCAAAA&#x27;</span>)[<span class="number">0</span>] <span class="comment">#查找到我们前面发送的CCCCAAAA,因为我们知道这个是page参数的值，并且page有个溢出的漏洞，所以我们通过修改该地址的值改为无限大的数就可以造成溢出，从而导致程序崩溃</span></span><br><span class="line">    payload=<span class="string">&#x27;a&#x27;</span>*payload_len</span><br><span class="line">    ql.mem.write(addr, payload.encode())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;[5] 运行程序...&#x27;</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        ql.run(begin=<span class="number">0x10930</span>+<span class="number">4</span>, end=<span class="number">0x7a0cc</span>+<span class="number">4</span>)	<span class="comment">#这个是只要把保证ql运行起来就好，因为运行了程序就崩溃了</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;[结果] ❌ 程序正常结束，没有崩溃&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;[结果] 🎉 漏洞存在！程序崩溃了！&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;[错误] <span class="subst">&#123;e&#125;</span>&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    verify_vuln(<span class="number">2000</span>)</span><br></pre></td></tr></table></figure>
+
+<img src="/image/1786898223070.png">
+
+<p>该项目是通过保存该url函数即将结束时的快照，然后修改page的参数，从而导致溢出，但是也可以直接在sprintf函数之前保存快照，然后从快照开始，使其自然的运行到sprintf，然后溢出，方法挺多的</p>
+<h3 id="fuzz测试"><a href="#fuzz测试" class="headerlink" title="fuzz测试"></a>fuzz测试</h3><p>首先要先执行， 因为 <strong>AFL 依赖系统的 core dump 机制来判断程序是否崩溃</strong>，而你的系统当前配置会把 core dump 交给外部工具处理，这会干扰 AFL 的正常工作。 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo sh -c <span class="string">&quot;echo core &gt; /proc/sys/kernel/core_pattern&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">AFL_DEBUG_CHILD_OUTPUT=<span class="number">1</span> AFL_AUTORESUME=<span class="number">1</span> afl-fuzz -i afl_inputs -o afl_outputs -n -- python3 ./fuzz_tendaac15_httpd.py @@</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sys.path.append(<span class="string">&quot;../../../&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> qiling <span class="keyword">import</span> Qiling</span><br><span class="line"><span class="keyword">from</span> qiling.const <span class="keyword">import</span> QL_VERBOSE</span><br><span class="line"><span class="keyword">from</span> qiling.extensions.afl <span class="keyword">import</span> ql_afl_fuzz</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">patcher</span>(<span class="params">ql</span>):</span><br><span class="line">    br0_addr = ql.mem.search(<span class="string">&quot;br0&quot;</span>.encode() + <span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">    <span class="keyword">for</span> addr <span class="keyword">in</span> br0_addr:</span><br><span class="line">        ql.mem.write(addr, <span class="string">b&#x27;lo\x00&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>(<span class="params">input_file, enable_trace=<span class="literal">False</span></span>):</span><br><span class="line">    ql = Qiling([<span class="string">&quot;rootfs/bin/httpd&quot;</span>], <span class="string">&quot;rootfs&quot;</span>, verbose=QL_VERBOSE.DEBUG, console = <span class="literal">True</span> <span class="keyword">if</span> enable_trace <span class="keyword">else</span> <span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># save current emulated status</span></span><br><span class="line">    ql.restore(snapshot=<span class="string">&quot;snapshot.bin&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># return should be 0x7ff3ca64</span></span><br><span class="line">    fuzz_mem=ql.mem.search(<span class="string">b&quot;CCCCAAAA&quot;</span>)</span><br><span class="line">    target_address = fuzz_mem[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">place_input_callback</span>(<span class="params">_ql: Qiling, <span class="built_in">input</span>: <span class="built_in">bytes</span>, _</span>):</span><br><span class="line">        _ql.mem.write(target_address, <span class="built_in">input</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">start_afl</span>(<span class="params">_ql: Qiling</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Callback from inside</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        ql_afl_fuzz(_ql, input_file=input_file, place_input_callback=place_input_callback, exits=[ql.os.exit_point])</span><br><span class="line"></span><br><span class="line">    ql.hook_address(callback=start_afl, address=<span class="number">0x10930</span>+<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        ql.run(begin = <span class="number">0x10930</span>+<span class="number">4</span>, end = <span class="number">0x7a0cc</span>+<span class="number">4</span>)</span><br><span class="line">        os._exit(<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">if</span> enable_trace:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;\nFuzzer Went Shit&quot;</span>)</span><br><span class="line">        os._exit(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) == <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;No input file provided.&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">2</span> <span class="keyword">and</span> sys.argv[<span class="number">1</span>] == <span class="string">&quot;-t&quot;</span>:</span><br><span class="line">        main(sys.argv[<span class="number">2</span>], enable_trace=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        main(sys.argv[<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io">hfddh666</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://hfddh666.github.io/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/">https://hfddh666.github.io/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://hfddh666.github.io" target="_blank">hfddh666's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%AE%89%E5%85%A8%E8%87%AA%E5%8A%A8%E5%8C%96/">安全自动化</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/19/WAVLINK-NU516-V251208&amp;V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="WAVLINK-NU516-V251208&amp;V240425漏洞分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">WAVLINK-NU516-V251208&V240425漏洞分析</div></div><div class="info-2"><div class="info-item-1">WAVLINK-NU516-V251208&amp;V240425漏洞分析固件模拟固件下载地址：  https://docs.wavlink.xyz/Firmware/?category=USB+Printer+Server&amp;model=all  然后binwalk后，查看busybox，架构是mips小端序32位，然后下在对应镜像 qemu启动 12345678sudo qemu-system-mipsel \        -M malta \        -cpu 74Kf \        -kernel ./vmlinux-3.2.0-4-4kc-malta \        -hda ./debian_squeeze_mipsel_standard.qcow2 \        -append &quot;root=/dev/sda1 console=ttyS0&quot; \        -net nic -net tap,ifname=tap0,script=no,downscript=no \        -nographic  查找服务类型 1f...</div></div></div></a><a class="pagination-related" href="/2026/05/30/Qiling-%E6%A1%86%E6%9E%B6%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8E-QilingLab-%E8%AF%A6%E8%A7%A3%E5%88%B0-Qiling-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析</div></div><div class="info-2"><div class="info-item-1">Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析整体分析首先是要下载qilinglab-x86_64，这个网上一堆，直接搜索就有，然后看架构，发现是x86-64-小端序，然后打开IDA 然后开始是main函数然后会跳到start函数 这就是几个挑战   challenge1首先是挑战1，就是将内存0x1337的数值改为1337，然后将v13[0]设置为1 123456789101112_BYTE *__fastcall challenge1(_BYTE *a1)&#123;  _BYTE *result; // rax  result = (_BYTE *)*(unsigned int *)((char *)&amp;loc_1335 + 2);  if ( *(_DWORD *)((char *)&amp;loc_1335 + 2) == 0x539 )  &#123;    result = a1;    *a1 = 1;  &#125;  return result;&#125;  然后进入checker函数判断 1234567891011...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/04/10/%E5%88%9D%E6%8E%A2libFuzzer/" title="初探libFuzzer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-10</div><div class="info-item-2">初探libFuzzer</div></div><div class="info-2"><div class="info-item-1">什么是LibFuzzer是模糊测试的一种，动态跟踪程序执行路径，获取高价值输入，每一轮随机选取种子进行操作，若果可以出发新的代码路径，则被保留加入语料库，否则抛弃，但是这个是采用库连接集成到目标中，可以这对特定函数进行测试，而不是整个黑盒，可控性比较好 配置安装必要clang++-12 12345678sudo apt update &amp;&amp; sudo apt install clang-12 lldb-12#验证~/libFUZZER ❯ clang++-12 --versionUbuntu clang version 12.0.1-19ubuntu3Target: x86_64-pc-linux-gnuThread model: posixInstalledDir: /usr/bin  编译选项 12345clang++-12 -fsanitize=fuzzer,address,undefined \        -fno-omit-frame-pointer \        -g -O1 target.cpp -o fuzzer#简洁版clang++-12 ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">hfddh666</div><div class="author-info-description">欢迎访问 hfddh666 的博客！</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" href="/about/"><i class="fab fa-github"></i><span>关于我</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E6%BC%8F%E6%8C%96%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">基于tenda_ac15设备的自动化漏挖测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.2.</span> <span class="toc-text">项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#READ-md"><span class="toc-number">1.2.1.</span> <span class="toc-text">READ.md</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#saver-tendaac15-httpd-py"><span class="toc-number">1.2.2.</span> <span class="toc-text">saver_tendaac15_httpd.py</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#addressNat-overflow-sh"><span class="toc-number">1.2.3.</span> <span class="toc-text">addressNat_overflow.sh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#verify-py"><span class="toc-number">1.2.4.</span> <span class="toc-text">verify.py</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fuzz%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.5.</span> <span class="toc-text">fuzz测试</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/22/XiaomiBE10000-Pro%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="XiaomiBE10000 Pro固件模拟及漏洞复现">XiaomiBE10000 Pro固件模拟及漏洞复现</a><time datetime="2026-08-22T06:04:25.000Z" title="发表于 2026-08-22 14:04:25">2026-08-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/19/WAVLINK-NU516-V251208&amp;V240425%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="WAVLINK-NU516-V251208&amp;V240425漏洞分析">WAVLINK-NU516-V251208&amp;V240425漏洞分析</a><time datetime="2026-08-19T05:43:44.000Z" title="发表于 2026-08-19 13:43:44">2026-08-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/16/%E5%9F%BA%E4%BA%8Etenda-ac15%E8%AE%BE%E5%A4%87%E7%9A%84afl-%E6%B5%8B%E8%AF%95/" title="基于tenda_ac15设备的自动化漏挖测试">基于tenda_ac15设备的自动化漏挖测试</a><time datetime="2026-08-16T15:53:13.000Z" title="发表于 2026-08-16 23:53:13">2026-08-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/30/Qiling-%E6%A1%86%E6%9E%B6%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8E-QilingLab-%E8%AF%A6%E8%A7%A3%E5%88%B0-Qiling-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析">Qiling 框架分析实战：从 QilingLab 详解到 Qiling 源码分析</a><time datetime="2026-05-30T07:06:50.000Z" title="发表于 2026-05-30 15:06:50">2026-05-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/Vivotek-Remote-Stack-Overflow/" title="Vivotek Remote Stack Overflow">Vivotek Remote Stack Overflow</a><time datetime="2026-05-26T12:24:07.000Z" title="发表于 2026-05-26 20:24:07">2026-05-26</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By hfddh666</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script>
+  // 枫叶脚本（数量减少，更轻盈）
+  $(document).ready(function() {
+    var leafCount = 0;
+    var maxLeaf = 15;
+    var fallSpeed = 1.8;
+    
+    function createLeaf() {
+      if (leafCount >= maxLeaf) return;
+      var size = Math.random() * 15 + 10;
+      var colors = ['#e65100','#ff7043','#f57c00'];
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      
+      var leaf = $('<div class="maple-leaf"></div>').css({
+        top: -size + 'px',
+        left: Math.random() * $(window).width() + 'px',
+        width: size + 'px',
+        height: size + 'px'
+      });
+      leaf[0].style.setProperty('--leaf-color', color);
+      leaf.find('::before').css('background', color);
+      
+      $('body').append(leaf);
+      leafCount++;
+      
+      leaf.animate({
+        top: $(window).height() + size + 'px',
+        left: "+=" + (Math.random() * 150 - 75) + "px",
+        rotate: Math.random() * 720 + 'deg'
+      }, fallSpeed * 20000, 
+      function() {
+        $(this).remove();
+        leafCount--;
+      });
+    }
+    for (var i = 0; i < 8; i++) createLeaf();
+    setInterval(createLeaf, 800);
+  });
+</script>
+<script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
